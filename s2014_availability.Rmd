@@ -1,0 +1,106 @@
+---
+title: "Snapshot S2014 availability"
+author: "Lars Vilhuber"
+output: pdf_document
+---
+
+There are as of this date two versions of the MOU that binds the Census Bureau and state agencies in effect: The original MOU, signed when the state first joined the LED Program, and a successor MOU, mostly standardized across states, that states signed when the first MOU expired after 10 years. The original MOU was used for the S2008 snapshot, and subsequent snapshots have been faced with a mixture of both.
+
+
+```{r options, echo=FALSE,warning=FALSE,message=FALSE}
+library(gdata)
+library(ggplot2)
+xlsloc <- "."
+xlsversion <- "12-10-2015"
+```
+```{r qwi_options, warning=FALSE,message=FALSE}
+# version of MOU we are interested in
+mouversion <- 2
+mouoption    <- "A" 
+# this could also be "http://download.vrdc.cornell.edu/qwipu/"
+urlbase <- "http://lehd.ces.census.gov/pub/"
+# this could also be "latest_release"
+# qwivintage <- "R2015Q3"
+qwivintage <- "latest_release"
+qwistates <- "AK AL AR AZ CA CO CT DC DE FL GA HI IA ID IL IN KS KY LA MA MD ME MI MN MO MS MT NC ND NE NH NJ NM NV NY OH OK OR PA RI SC SD TN TX UT VA VT WA WI WV WY"
+qwistates <- unlist(strsplit(qwistates," "))
+# common quarter to look at
+# this could be deduced from metadata, here we hard-code it
+qwiyear    <- 2014
+qwiquarter <- 1
+```
+
+We obtained a list of the state of the MOUs as of `r xlsversion`. From it, we will use the later versions (version `r mouversion`) that have selected "Option `r mouoption`", as those are the ones that have delegated granting access to the Census Bureau's review process. The other options are not an ex-ante "No", but currently, no data is available to assess whether a research project will be approved by the individual states.
+
+```{r readdata, echo=FALSE}
+mous <- read.xls(paste(xlsloc,"/","CMS download_",xlsversion,".xls",sep=""),sheet = 1)
+# replace NAs and blanks by "NA" for Options
+newlevels <- levels(mous$Option)
+newlevels[4] <- "NA"
+levels(mous$Option) <- newlevels
+mous[is.na(mous$Option),"Option"] <- "NA"
+mous[mous$Option=="","Option"] <- "NA"
+
+```
+
+We first define (source) a function to download QWI CSV files.
+```{r define_function}
+source("download_qwi.R",echo = TRUE)
+```
+We then cycle through all the states and download the relevant file. 
+```{r download_all,cache=TRUE}
+time.qwi <- system.time(for (x in qwistates) { 
+  eval(parse(text=paste("qwi_",tolower(x)," <- download_qwi(\"",x,"\")",sep = "")))
+  })
+```
+The above code can take a while. The above code ran for `r round(time.qwi[1]/60,0)` minutes.
+
+Now that we have the files, we collate them all into a single file:
+```{r collate_states,cache=TRUE}
+for (x in qwistates) { eval(parse(text=paste("qwi_",tolower(x),"$state = \"",x,"\"",sep = "")))}
+for (x in qwistates[1]) { eval(parse(text=paste("all <- qwi_",tolower(x),sep = "")))}
+for (x in qwistates[-1]) { eval(parse(text=paste("all <- rbind(all,qwi_",tolower(x),")",sep = "")))}
+```
+and merge on the indicators for MOU status:
+```{r merge_mou}
+allmous <- merge(all,mous,by.x="geography",by.y = "fips",all.x = TRUE)
+size <- allmous[allmous$ind_level=="A",]
+industry <- allmous[allmous$industry != "00",]
+```
+```{r setvar,echo=FALSE}
+usevar <- "Emp"
+```
+The industry distribution of **`r usevar`** by chosen option thus looks like this:
+```{r graph_Emp,echo=FALSE}
+
+# get industry distribution
+
+sumvar <- paste("sum",usevar,sep = "")
+grpsums <- aggregate(industry[,usevar], list(Option=industry$Option),FUN=sum, na.rm=TRUE)
+names(grpsums)[2] <- sumvar
+gindustry <- merge(industry,grpsums)
+gindustry$pctvar <- gindustry[,usevar] / gindustry[,sumvar]
+
+# now plot the whole thing
+gg <-ggplot(data=gindustry,aes(industry,weight=pctvar,fill=Option)) +geom_bar(position="dodge",alpha=.5) +
+  ylab(paste("Distribution of ",usevar,sep="")) + 
+  xlab("NAICS sector") + 
+  scale_fill_brewer(type="qual", palette = "Dark2")
+gg <- gg +   theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.major.x = element_line(colour="black"),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+gg
+
+```
+```{r,echo=FALSE}
+usevar <- "SepBeg"
+```
+
+For the industry distribution of **`r usevar`**, the distribution looks like this:
+```{r graph_SepBeg,echo=FALSE,ref.label="graph_Emp"}
+```
+
+
