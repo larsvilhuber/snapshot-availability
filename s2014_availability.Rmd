@@ -111,3 +111,4 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 ```{r graph_Payroll,echo=FALSE,ref.label="graph_Emp"}
 ```
 
+Additional variables (see the [http://lehd.ces.census.gov/data/schema/V4.0.4/lehd_public_use_schema.html](LEHD Schema) for names) can be easily added to the Rmd source file.
