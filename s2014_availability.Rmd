@@ -1,7 +1,7 @@
 ---
 title: "Snapshot S2014 availability"
 author: "Lars Vilhuber"
-output: pdf_document
+output: html_document
 ---
 
 There are as of this date two versions of the MOU that binds the Census Bureau and state agencies in effect: The original MOU, signed when the state first joined the LED Program, and a successor MOU, mostly standardized across states, that states signed when the first MOU expired after 10 years. The original MOU was used for the S2008 snapshot, and subsequent snapshots have been faced with a mixture of both.
@@ -103,4 +103,11 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 ```{r graph_SepBeg,echo=FALSE,ref.label="graph_Emp"}
 ```
 
+```{r,echo=FALSE}
+usevar <- "Payroll"
+```
+
+For the industry distribution of **`r usevar`**, the distribution looks like this:
+```{r graph_Payroll,echo=FALSE,ref.label="graph_Emp"}
+```
 
