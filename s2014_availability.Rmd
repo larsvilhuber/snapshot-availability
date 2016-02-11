@@ -1,14 +1,18 @@
 ---
 title: "Snapshot S2014 availability"
 author: "Lars Vilhuber"
-output: html_document
+output:
+  html_document: default
+  pdf_document:
+    keep_tex: yes
 ---
 
-There are as of this date two versions of the MOU that binds the Census Bureau and state agencies in effect: The original MOU, signed when the state first joined the LED Program, and a successor MOU, mostly standardized across states, that states signed when the first MOU expired after 10 years. The original MOU was used for the S2008 snapshot, and subsequent snapshots have been faced with a mixture of both.
+There are as of this date two versions of the MOU that binds the Census Bureau and state agencies in effect: The original MOU, signed when the state first joined the LED Program, and a successor MOU, mostly standardized across states, that states signed when the first MOU expired after 10 years. The original MOU affected research access to the  S2008 snapshot. Access to subsequent snapshots has been  contingent on a mixture of both.
 
 
 ```{r options, echo=FALSE,warning=FALSE,message=FALSE}
 library(gdata)
+library(knitr)
 library(ggplot2)
 xlsloc <- "."
 xlsversion <- "12-10-2015"
@@ -48,7 +52,13 @@ oldmous[oldmous$X2007.Response=="Yes","OldOption"] <- "A"
 oldmous[oldmous$X2008.Reponse=="Yes","OldOption"] <- "A"
 # merge the mou data
 allmous <- merge(mous,oldmous,by.x="Name",by.y="State",all.x = TRUE)
-allmous <- allmous[,c("fips","Abbr","Name","Option","OldOption")]
+allmous <- allmous[,c("fips","Abbr","Name","Version","Option","OldOption")]
+```
+
+```{r printdata,echo=FALSE}
+allmous.print <- allmous
+allmous.print$OldOption <- ifelse(allmous.print$Version == 1 & allmous.print$Option =="NA",allmous.print$OldOption,"")
+kable(allmous.print)
 ```
 
 We first define (source) a function to download QWI CSV files.
