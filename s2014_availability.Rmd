@@ -12,6 +12,7 @@ library(gdata)
 library(ggplot2)
 xlsloc <- "."
 xlsversion <- "12-10-2015"
+xlsversion1 <- "020108"
 ```
 ```{r qwi_options, warning=FALSE,message=FALSE}
 # version of MOU we are interested in
@@ -40,7 +41,14 @@ newlevels[4] <- "NA"
 levels(mous$Option) <- newlevels
 mous[is.na(mous$Option),"Option"] <- "NA"
 mous[mous$Option=="","Option"] <- "NA"
-
+# old mous
+oldmous <- read.xls(paste(xlsloc,"/","ResearchAccess_",xlsversion1,".xls",sep=""),sheet = 1)
+oldmous$OldOption <- "B"
+oldmous[oldmous$X2007.Response=="Yes","OldOption"] <- "A"
+oldmous[oldmous$X2008.Reponse=="Yes","OldOption"] <- "A"
+# merge the mou data
+allmous <- merge(mous,oldmous,by.x="Name",by.y="State",all.x = TRUE)
+allmous <- allmous[,c("fips","Abbr","Name","Option","OldOption")]
 ```
 
 We first define (source) a function to download QWI CSV files.
