@@ -33,7 +33,7 @@ qwiquarter <- 1
 We obtained a list of the state of the MOUs as of `r xlsversion`. From it, we will use the later versions (version `r mouversion`) that have selected "Option `r mouoption`", as those are the ones that have delegated granting access to the Census Bureau's review process. The other options are not an ex-ante "No", but currently, no data is available to assess whether a research project will be approved by the individual states.
 
 ```{r readdata, echo=FALSE}
-mous <- read.xls(paste(xlsloc,"/","CMS download_",xlsversion,".xls",sep=""),sheet = 1)
+mous <- read.xls(paste(xlsloc,"/","lehd_mou_",xlsversion,".xlsx",sep=""),sheet = 1)
 # replace NAs and blanks by "NA" for Options
 newlevels <- levels(mous$Option)
 newlevels[4] <- "NA"
