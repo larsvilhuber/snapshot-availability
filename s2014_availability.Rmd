@@ -7,7 +7,7 @@ output:
     keep_tex: yes
 ---
 
-There are as of this date two versions of the MOU that binds the Census Bureau and state agencies in effect: The original MOU, signed when the state first joined the LED Program, and a successor MOU, mostly standardized across states, that states signed when the first MOU expired after 10 years. The original MOU affected research access to the  S2008 snapshot. Access to subsequent snapshots has been  contingent on a mixture of both.
+Users of the LEHD data in the Federal Statistical Research Data Centers (FSRDC) can only access data from states that have granted  non-Census researchers access to the data. There are, in short, two options that a state can choose: the state can delegate the approval process to the Census Bureau, which will grant access to qualified researchers on qualified research projects (option A); or it can itself review and approve projects that are submitted through the FSRDC project system (option B). Thus, researchers will automatically get access to states with option A if their project is approved by the Census Bureau, and may later obtain access to states' data that chose option B. 
 
 
 ```{r options, echo=FALSE,warning=FALSE,message=FALSE}
@@ -35,11 +35,12 @@ qwiyear    <- 2014
 qwiquarter <- 1
 ```
 
-We obtained a list of the state of the MOUs as of `r xlsversion`. From it, we will use the later versions (version `r mouversion`) that have selected "Option `r mouoption`", as those are the ones that have delegated granting access to the Census Bureau's review process. The other options are not an ex-ante "No", but currently, no data is available to assess whether a research project will be approved by the individual states.
+We obtained a list of the state of the MOUs as of `r xlsversion`. There are still a few states at this time that have an older form of the MOU, and for which we cannot easily deduce the option chosen. Here, we will use the later versions (version `r mouversion`) that have selected "Option `r mouoption`".
 
 ```{r readdata, echo=FALSE}
 mous <- read.xls(paste(xlsloc,"/","lehd_mou_",xlsversion,".xlsx",sep=""),sheet = 1)
 # replace NAs and blanks by "NA" for Options
+mous <- mous[mous$fips != 66,]
 newlevels <- levels(mous$Option)
 newlevels[4] <- "NA"
 levels(mous$Option) <- newlevels
@@ -55,12 +56,17 @@ allmous <- merge(mous,oldmous,by.x="Name",by.y="State",all.x = TRUE)
 allmous <- allmous[,c("fips","Abbr","Name","Version","Option","OldOption")]
 ```
 
-```{r printdata,echo=FALSE}
-allmous.print <- allmous
-allmous.print$OldOption <- ifelse(allmous.print$Version == 1 & allmous.print$Option =="NA",allmous.print$OldOption,"")
-kable(allmous.print)
+Of the `r nrow(mous)` states with a MOU on file with the Census Bureau, `r nrow(mous[mous$Option==mouoption & is.na(mous$Option)==FALSE,])` have chosen Option `r mouoption`:
+```{r tabulate_options, echo=FALSE}
+#kable(table(mous$Option,useNA = "ifany"))
+mous.table <- as.data.frame(table(mous$Option))
+mous.table <- mous.table[mous.table$Freq != 0,]
+names(mous.table)[1] <- "Option"
+kable(mous.table,row.names = FALSE)
 ```
 
+# Comparing sets of states
+We are going to use public-use QWI data, drawn from `r urlbase`, to assess how comparable the set of states having chosen Option `r mouoption` are, compared to the remaining states, based on a variety of variables available.
 We first define (source) a function to download QWI CSV files.
 ```{r define_function}
 source("download_qwi.R",echo = TRUE)
@@ -71,7 +77,7 @@ time.qwi <- system.time(for (x in qwistates) {
   eval(parse(text=paste("qwi_",tolower(x)," <- download_qwi(\"",x,"\")",sep = "")))
   })
 ```
-The above code can take a while. The above code ran for `r round(time.qwi[1]/60,0)` minutes.
+The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes.
 
 Now that we have the files, we collate them all into a single file:
 ```{r collate_states,cache=TRUE}
@@ -130,3 +136,10 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 ```
 
 Additional variables (see the [http://lehd.ces.census.gov/data/schema/V4.0.4/lehd_public_use_schema.html](LEHD Schema) for names) can be easily added to the Rmd source file.
+
+# Appendix: Full list of state MOUs and option chosen
+```{r printdata,echo=FALSE}
+allmous.print <- mous
+#allmous.print$OldOption <- ifelse(allmous.print$Version == 1 & allmous.print$Option =="NA",allmous.print$OldOption,"")
+kable(allmous.print[,c("fips","Abbr","Name","Option")])
+```
