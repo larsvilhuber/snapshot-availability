@@ -2,9 +2,13 @@
 title: "Snapshot S2014 availability"
 author: "Lars Vilhuber"
 output:
-  html_document: default
+  html_document:
+    toc: yes
+    toc_depth: 1
   pdf_document:
     keep_tex: yes
+    toc: yes
+    toc_depth: 1
 ---
 
 Users of the LEHD data in the Federal Statistical Research Data Centers (FSRDC) can only access data from states that have granted  non-Census researchers access to the data. There are, in short, two options that a state can choose: the state can delegate the approval process to the Census Bureau, which will grant access to qualified researchers on qualified research projects (option A); or it can itself review and approve projects that are submitted through the FSRDC project system (option B). Thus, researchers will automatically get access to states with option A if their project is approved by the Census Bureau, and may later obtain access to states' data that chose option B. 
@@ -18,7 +22,7 @@ xlsloc <- "."
 xlsversion <- "12-10-2015"
 xlsversion1 <- "020108"
 ```
-```{r qwi_options, warning=FALSE,message=FALSE}
+```{r qwi_options, warning=FALSE,message=FALSE,echo=FALSE}
 # version of MOU we are interested in
 mouversion <- 2
 mouoption    <- "A" 
@@ -26,16 +30,15 @@ mouoption    <- "A"
 urlbase <- "http://lehd.ces.census.gov/pub/"
 # this could also be "latest_release"
 # qwivintage <- "R2015Q3"
-qwivintage <- "latest_release"
 qwistates <- "AK AL AR AZ CA CO CT DC DE FL GA HI IA ID IL IN KS KY LA MA MD ME MI MN MO MS MT NC ND NE NH NJ NM NV NY OH OK OR PA RI SC SD TN TX UT VA VT WA WI WV WY"
 qwistates <- unlist(strsplit(qwistates," "))
-# common quarter to look at
-# this could be deduced from metadata, here we hard-code it
-qwiyear    <- 2014
-qwiquarter <- 1
 ```
 
-We obtained a list of the state of the MOUs as of `r xlsversion`. There are still a few states at this time that have an older form of the MOU, and for which we cannot easily deduce the option chosen. Here, we will use the later versions (version `r mouversion`) that have selected "Option `r mouoption`".
+We obtained a list of the state of the MOUs as of 
+
+> **`r xlsversion`.** 
+
+There are still a few states at this time that have an older form of the MOU, and for which we cannot easily deduce the option chosen. Here, we will use the later versions (version `r mouversion`) that have selected "Option `r mouoption`".
 
 ```{r readdata, echo=FALSE}
 mous <- read.xls(paste(xlsloc,"/","lehd_mou_",xlsversion,".xlsx",sep=""),sheet = 1)
@@ -56,7 +59,7 @@ allmous <- merge(mous,oldmous,by.x="Name",by.y="State",all.x = TRUE)
 allmous <- allmous[,c("fips","Abbr","Name","Version","Option","OldOption")]
 ```
 
-Of the `r nrow(mous)` states with a MOU on file with the Census Bureau, `r nrow(mous[mous$Option==mouoption & is.na(mous$Option)==FALSE,])` have chosen Option `r mouoption`:
+Of the `r nrow(mous)` states with a MOU on file as of `r xlsversion` with the Census Bureau, `r nrow(mous[mous$Option==mouoption & is.na(mous$Option)==FALSE,])` have chosen Option `r mouoption`:
 ```{r tabulate_options, echo=FALSE}
 #kable(table(mous$Option,useNA = "ifany"))
 mous.table <- as.data.frame(table(mous$Option))
@@ -65,8 +68,30 @@ names(mous.table)[1] <- "Option"
 kable(mous.table,row.names = FALSE)
 ```
 
+# Missing Completely at Random
+While the number of states that have not agreed to Option `r mouoption` may seem small, from a statistical point of view, they have one important feature: the decision to participate ($M$) is (most likely) not correlated with any observable characteristic ($Y$) of the non-participating state (Statistical Analysis with Missing Data, 2nd edition, Roderick J. A. Little and Donald B. Rubin, New York: John Wiley & Sons, 2002):
+
+> $p(M | Y, \theta, \psi) = p(M|\psi)$
+
+where $\theta$ are parameters associated with the data generating process, and $\psi$ are parameters associated with the decision to participate in Option `r mouoption`. 
+
 # Comparing sets of states
-We are going to use public-use QWI data, drawn from `r urlbase`, to assess how comparable the set of states having chosen Option `r mouoption` are, compared to the remaining states, based on a variety of variables available.
+To assess the claim, we are going to use public-use QWI data, drawn from `r urlbase`, to assess how comparable the set of states having chosen Option `r mouoption` are, compared to the remaining states, based on a variety of variables available.
+
+> Users who wish to consider a different variable should feel free to clone this git repository, and change parameters of interest.
+
+# Parameters
+
+```{r qwi_parameters}
+# common quarter to look at
+# this could be deduced from metadata, here we hard-code it
+qwivintage <- "latest_release"
+qwiyear    <- 2014
+qwiquarter <- 1
+```
+
+# Some Technical Stuff
+
 We first define (source) a function to download QWI CSV files.
 ```{r define_function}
 source("download_qwi.R",echo = TRUE)
@@ -91,9 +116,14 @@ allmous <- merge(all,mous,by.x="geography",by.y = "fips",all.x = TRUE)
 size <- allmous[allmous$ind_level=="A",]
 industry <- allmous[allmous$industry != "00",]
 ```
-```{r setvar,echo=FALSE}
+
+> Users who want to consider different variables might change the following option:
+
+```{r setvar,echo=TRUE}
 usevar <- "Emp"
 ```
+# Results
+
 The industry distribution of **`r usevar`** by chosen option thus looks like this:
 ```{r graph_Emp,echo=FALSE}
 
@@ -119,6 +149,9 @@ gg <- gg +   theme(axis.line = element_line(colour = "black"),
 gg
 
 ```
+
+> Users who want to consider different variables might change the following option:
+
 ```{r,echo=FALSE}
 usevar <- "SepBeg"
 ```
@@ -137,7 +170,7 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 
 Additional variables (see the [http://lehd.ces.census.gov/data/schema/V4.0.4/lehd_public_use_schema.html](LEHD Schema) for names) can be easily added to the Rmd source file.
 
-# Appendix: Full list of state MOUs and option chosen
+# Appendix: Full list of state MOUs and option chosen as of `r xlsversion`
 ```{r printdata,echo=FALSE}
 allmous.print <- mous
 #allmous.print$OldOption <- ifelse(allmous.print$Version == 1 & allmous.print$Option =="NA",allmous.print$OldOption,"")

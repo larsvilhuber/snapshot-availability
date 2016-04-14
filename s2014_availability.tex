@@ -9,11 +9,10 @@
 \else % if luatex or xelatex
   \ifxetex
     \usepackage{mathspec}
-    \usepackage{xltxtra,xunicode}
   \else
     \usepackage{fontspec}
   \fi
-  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
   \newcommand{\euro}{€}
 \fi
 % use upquote if available, for straight quotes in verbatim environments
@@ -24,6 +23,14 @@
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
 \usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\PassOptionsToPackage{usenames,dvipsnames}{color} % color is loaded by hyperref
+\hypersetup{unicode=true,
+            pdftitle={Snapshot S2014 availability},
+            pdfauthor={Lars Vilhuber},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
 \usepackage{color}
 \usepackage{fancyvrb}
 \newcommand{\VerbBar}{|}
@@ -38,17 +45,34 @@
 \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
 \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
 \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
 \newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
 \newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\ImportTok}[1]{{#1}}
 \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
 \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
 \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{{#1}}}}
+\newcommand{\BuiltInTok}[1]{{#1}}
+\newcommand{\ExtensionTok}[1]{{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{{#1}}}
 \newcommand{\RegionMarkerTok}[1]{{#1}}
-\newcommand{\ErrorTok}[1]{\textbf{{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{{#1}}}}
 \newcommand{\NormalTok}[1]{{#1}}
 \usepackage{longtable,booktabs}
-\usepackage{graphicx}
+\usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -57,26 +81,11 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\ifxetex
-  \usepackage[setpagesize=false, % page size defined by xetex
-              unicode=false, % unicode breaks when used with xetex
-              xetex]{hyperref}
-\else
-  \usepackage[unicode=true]{hyperref}
-\fi
-\hypersetup{breaklinks=true,
-            bookmarks=true,
-            pdfauthor={Lars Vilhuber},
-            pdftitle={Snapshot S2014 availability},
-            colorlinks=true,
-            citecolor=blue,
-            urlcolor=blue,
-            linkcolor=magenta,
-            pdfborder={0 0 0}}
-\urlstyle{same}  % don't use monospace font for urls
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{0}
 
 %%% Use protect on footnotes to avoid problems with footnotes in titles
@@ -105,106 +114,102 @@
 
 
 
-\begin{document}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
 
+\begin{document}
 \maketitle
 
+{
+\setcounter{tocdepth}{1}
+\tableofcontents
+}
+Users of the LEHD data in the Federal Statistical Research Data Centers
+(FSRDC) can only access data from states that have granted non-Census
+researchers access to the data. There are, in short, two options that a
+state can choose: the state can delegate the approval process to the
+Census Bureau, which will grant access to qualified researchers on
+qualified research projects (option A); or it can itself review and
+approve projects that are submitted through the FSRDC project system
+(option B). Thus, researchers will automatically get access to states
+with option A if their project is approved by the Census Bureau, and may
+later obtain access to states' data that chose option B.
 
-There are as of this date two versions of the MOU that binds the Census
-Bureau and state agencies in effect: The original MOU, signed when the
-state first joined the LED Program, and a successor MOU, mostly
-standardized across states, that states signed when the first MOU
-expired after 10 years. The original MOU affected research access to the
-S2008 snapshot. Access to subsequent snapshots has been contingent on a
-mixture of both.
+We obtained a list of the state of the MOUs as of
+
+\begin{quote}
+\textbf{12-10-2015.}
+\end{quote}
+
+There are still a few states at this time that have an older form of the
+MOU, and for which we cannot easily deduce the option chosen. Here, we
+will use the later versions (version 2) that have selected ``Option A''.
+
+Of the 53 states with a MOU on file as of 12-10-2015 with the Census
+Bureau, 14 have chosen Option A:
+
+\begin{longtable}[c]{@{}lr@{}}
+\toprule
+Option & Freq\tabularnewline
+\midrule
+\endhead
+A & 14\tabularnewline
+B & 29\tabularnewline
+NA & 10\tabularnewline
+\bottomrule
+\end{longtable}
+
+\section{Missing Completely at
+Random}\label{missing-completely-at-random}
+
+While the number of states that have not agreed to Option A may seem
+small, from a statistical point of view, they have one important
+feature: the decision to participate (\(M\)) is (most likely) not
+correlated with any observable characteristic (\(Y\)) of the
+non-participating state (Statistical Analysis with Missing Data, 2nd
+edition, Roderick J. A. Little and Donald B. Rubin, New York: John Wiley
+\& Sons, 2002):
+
+\begin{quote}
+\(p(M | Y, \theta, \psi) = p(M|\psi)\)
+\end{quote}
+
+where \(\theta\) are parameters associated with the data generating
+process, and \(\psi\) are parameters associated with the decision to
+participate in Option A.
+
+\section{Comparing sets of states}\label{comparing-sets-of-states}
+
+To assess the claim, we are going to use public-use QWI data, drawn from
+\url{http://lehd.ces.census.gov/pub/}, to assess how comparable the set
+of states having chosen Option A are, compared to the remaining states,
+based on a variety of variables available.
+
+\begin{quote}
+Users who wish to consider a different variable should feel free to
+clone this git repository, and change parameters of interest.
+\end{quote}
+
+\section{Parameters}\label{parameters}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# version of MOU we are interested in}
-\NormalTok{mouversion <-}\StringTok{ }\DecValTok{2}
-\NormalTok{mouoption    <-}\StringTok{ "A"} 
-\CommentTok{# this could also be "http://download.vrdc.cornell.edu/qwipu/"}
-\NormalTok{urlbase <-}\StringTok{ "http://lehd.ces.census.gov/pub/"}
-\CommentTok{# this could also be "latest_release"}
-\CommentTok{# qwivintage <- "R2015Q3"}
-\NormalTok{qwivintage <-}\StringTok{ "latest_release"}
-\NormalTok{qwistates <-}\StringTok{ "AK AL AR AZ CA CO CT DC DE FL GA HI IA ID IL IN KS KY LA MA MD ME MI MN MO MS MT NC ND NE NH NJ NM NV NY OH OK OR PA RI SC SD TN TX UT VA VT WA WI WV WY"}
-\NormalTok{qwistates <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{strsplit}\NormalTok{(qwistates,}\StringTok{" "}\NormalTok{))}
 \CommentTok{# common quarter to look at}
 \CommentTok{# this could be deduced from metadata, here we hard-code it}
+\NormalTok{qwivintage <-}\StringTok{ "latest_release"}
 \NormalTok{qwiyear    <-}\StringTok{ }\DecValTok{2014}
 \NormalTok{qwiquarter <-}\StringTok{ }\DecValTok{1}
 \end{Highlighting}
 \end{Shaded}
 
-We obtained a list of the state of the MOUs as of 12-10-2015. From it,
-we will use the later versions (version 2) that have selected ``Option
-A'', as those are the ones that have delegated granting access to the
-Census Bureau's review process. The other options are not an ex-ante
-``No'', but currently, no data is available to assess whether a research
-project will be approved by the individual states.
-
-\begin{longtable}[c]{@{}rllrll@{}}
-\toprule
-fips & Abbr & Name & Version & Option & OldOption\tabularnewline
-\midrule
-\endhead
-1 & AL & Alabama & 2 & B &\tabularnewline
-2 & AK & Alaska & 1 & NA & B\tabularnewline
-4 & AZ & Arizona & 2 & A &\tabularnewline
-5 & AR & Arkansas & 2 & A &\tabularnewline
-6 & CA & California & 2 & B &\tabularnewline
-8 & CO & Colorado & 2 & B &\tabularnewline
-9 & CT & Connecticut & 2 & B &\tabularnewline
-10 & DE & Delaware & 2 & A &\tabularnewline
-11 & DC & District of Columbia & 2 & A &\tabularnewline
-12 & FL & Florida & 2 & B &\tabularnewline
-13 & GA & Georgia & 2 & B &\tabularnewline
-66 & GU & Guam & NA & NA & NA\tabularnewline
-15 & Hi & Hawaii & 3 & B &\tabularnewline
-16 & ID & Idaho & 2 & B &\tabularnewline
-17 & IL & Illinois & 1 & A &\tabularnewline
-18 & IN & Indiana & 2 & A &\tabularnewline
-19 & IA & Iowa & 2 & A &\tabularnewline
-20 & KS & Kansas & 2 & A &\tabularnewline
-21 & KY & Kentucky & 2 & B &\tabularnewline
-22 & LA & Louisiana & 1 & A &\tabularnewline
-23 & ME & Maine & 2 & A &\tabularnewline
-24 & MD & Maryland & 1 & A &\tabularnewline
-25 & MA & Massachusetts & 2 & B &\tabularnewline
-26 & MI & Michigan & 1 & NA & B\tabularnewline
-27 & MN & Minnesota & 2 & B &\tabularnewline
-28 & MS & Mississippi & 1 & NA & B\tabularnewline
-29 & MO & Missouri & 2 & B &\tabularnewline
-30 & MT & Montana & 2 & B &\tabularnewline
-31 & NE & Nebraska & 1 & NA & B\tabularnewline
-32 & NV & Nevada & 2 & A &\tabularnewline
-33 & NH & New Hampshire & 2 & B &\tabularnewline
-34 & NJ & New Jersey & 2 & B &\tabularnewline
-35 & NM & New Mexico & 2 & B &\tabularnewline
-36 & NY & New York & 1 & NA & B\tabularnewline
-37 & NC & North Carolina & 2 & B &\tabularnewline
-38 & ND & North Dakota & 2 & B &\tabularnewline
-39 & OH & Ohio & 1 & NA & B\tabularnewline
-40 & OK & Oklahoma & 2 & A &\tabularnewline
-41 & OR & Oregon & 2 & B &\tabularnewline
-42 & PA & Pennsylvania & 2 & B &\tabularnewline
-72 & PR & Puerto Rico & 1 & NA & NA\tabularnewline
-44 & RI & Rhode Island & 2 & B &\tabularnewline
-45 & SC & South Carolina & 2 & B &\tabularnewline
-46 & SD & South Dakota & 1 & NA & B\tabularnewline
-47 & TN & Tennessee & 2 & A &\tabularnewline
-48 & TX & Texas & 2 & B &\tabularnewline
-49 & UT & Utah & 2 & B &\tabularnewline
-50 & VT & Vermont & 2 & B &\tabularnewline
-78 & VI & Virgin Islands & 1 & NA & NA\tabularnewline
-51 & VA & Virginia & 2 & B &\tabularnewline
-53 & WA & Washington & 2 & B &\tabularnewline
-54 & WV & West Virginia & 2 & B &\tabularnewline
-55 & WI & Wisconsin & 2 & B &\tabularnewline
-56 & WY & Wyoming & 1 & NA & B\tabularnewline
-\bottomrule
-\end{longtable}
+\section{Some Technical Stuff}\label{some-technical-stuff}
 
 We first define (source) a function to download QWI CSV files.
 
@@ -232,7 +237,8 @@ We then cycle through all the states and download the relevant file.
 \end{Highlighting}
 \end{Shaded}
 
-The above code can take a while. The above code ran for 24 minutes.
+The above code can take a while, in this example and on my computer, it
+ran for 19 minutes.
 
 Now that we have the files, we collate them all into a single file:
 
@@ -254,29 +260,102 @@ and merge on the indicators for MOU status:
 \end{Highlighting}
 \end{Shaded}
 
+\begin{quote}
+Users who want to consider different variables might change the
+following option:
+\end{quote}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{usevar <-}\StringTok{ "Emp"}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Results}\label{results}
+
 The industry distribution of \textbf{Emp} by chosen option thus looks
 like this:
-\begin{figure}
-\centering
-\includegraphics[width=0.8\textwidth]{s2014_availability_files/figure-latex/graph_Emp-1.pdf}
-\end{figure}
+\includegraphics{s2014_availability_files/figure-latex/graph_Emp-1.pdf}
+
+\begin{quote}
+Users who want to consider different variables might change the
+following option:
+\end{quote}
 
 For the industry distribution of \textbf{SepBeg}, the distribution looks
 like this:
-\begin{figure}
-\centering
-\includegraphics[width=0.8\textwidth]{s2014_availability_files/figure-latex/graph_SepBeg-1.pdf}
-\end{figure}
+\includegraphics{s2014_availability_files/figure-latex/graph_SepBeg-1.pdf}
 
 For the industry distribution of \textbf{Payroll}, the distribution
 looks like this:
-\begin{figure}
-\centering
-\includegraphics[width=0.8\textwidth]{s2014_availability_files/figure-latex/graph_Payroll-1.pdf}
-\end{figure}
+\includegraphics{s2014_availability_files/figure-latex/graph_Payroll-1.pdf}
 
 Additional variables (see the
-\href{LEHD\%20Schema}{\url{http://lehd.ces.census.gov/data/schema/V4.0.4/lehd_public_use_schema.html}}
+\href{LEHD\%20Schema}{http://lehd.ces.census.gov/data/schema/V4.0.4/lehd\_public\_use\_schema.html}
 for names) can be easily added to the Rmd source file.
+
+\section{Appendix: Full list of state MOUs and option chosen as of
+12-10-2015}\label{appendix-full-list-of-state-mous-and-option-chosen-as-of-12-10-2015}
+
+\begin{longtable}[c]{@{}lrlll@{}}
+\toprule
+& fips & Abbr & Name & Option\tabularnewline
+\midrule
+\endhead
+1 & 1 & AL & Alabama & B\tabularnewline
+2 & 2 & AK & Alaska & NA\tabularnewline
+3 & 4 & AZ & Arizona & A\tabularnewline
+4 & 5 & AR & Arkansas & A\tabularnewline
+5 & 6 & CA & California & B\tabularnewline
+6 & 8 & CO & Colorado & B\tabularnewline
+7 & 9 & CT & Connecticut & B\tabularnewline
+8 & 10 & DE & Delaware & A\tabularnewline
+9 & 11 & DC & District of Columbia & A\tabularnewline
+10 & 12 & FL & Florida & B\tabularnewline
+11 & 13 & GA & Georgia & B\tabularnewline
+12 & 15 & Hi & Hawaii & B\tabularnewline
+13 & 16 & ID & Idaho & B\tabularnewline
+14 & 17 & IL & Illinois & A\tabularnewline
+15 & 18 & IN & Indiana & A\tabularnewline
+16 & 19 & IA & Iowa & A\tabularnewline
+17 & 20 & KS & Kansas & A\tabularnewline
+18 & 21 & KY & Kentucky & B\tabularnewline
+19 & 22 & LA & Louisiana & A\tabularnewline
+20 & 23 & ME & Maine & A\tabularnewline
+21 & 24 & MD & Maryland & A\tabularnewline
+22 & 25 & MA & Massachusetts & B\tabularnewline
+23 & 26 & MI & Michigan & NA\tabularnewline
+24 & 27 & MN & Minnesota & B\tabularnewline
+25 & 28 & MS & Mississippi & NA\tabularnewline
+26 & 29 & MO & Missouri & B\tabularnewline
+27 & 30 & MT & Montana & B\tabularnewline
+28 & 31 & NE & Nebraska & NA\tabularnewline
+29 & 32 & NV & Nevada & A\tabularnewline
+30 & 33 & NH & New Hampshire & B\tabularnewline
+31 & 34 & NJ & New Jersey & B\tabularnewline
+32 & 35 & NM & New Mexico & B\tabularnewline
+33 & 36 & NY & New York & NA\tabularnewline
+34 & 37 & NC & North Carolina & B\tabularnewline
+35 & 38 & ND & North Dakota & B\tabularnewline
+36 & 39 & OH & Ohio & NA\tabularnewline
+37 & 40 & OK & Oklahoma & A\tabularnewline
+38 & 41 & OR & Oregon & B\tabularnewline
+39 & 42 & PA & Pennsylvania & B\tabularnewline
+40 & 44 & RI & Rhode Island & B\tabularnewline
+41 & 45 & SC & South Carolina & B\tabularnewline
+42 & 46 & SD & South Dakota & NA\tabularnewline
+43 & 47 & TN & Tennessee & A\tabularnewline
+44 & 48 & TX & Texas & B\tabularnewline
+45 & 49 & UT & Utah & B\tabularnewline
+46 & 50 & VT & Vermont & B\tabularnewline
+47 & 51 & VA & Virginia & B\tabularnewline
+48 & 53 & WA & Washington & B\tabularnewline
+49 & 54 & WV & West Virginia & B\tabularnewline
+50 & 55 & WI & Wisconsin & B\tabularnewline
+51 & 56 & WY & Wyoming & NA\tabularnewline
+53 & 72 & PR & Puerto Rico & NA\tabularnewline
+54 & 78 & VI & Virgin Islands & NA\tabularnewline
+\bottomrule
+\end{longtable}
 
 \end{document}
