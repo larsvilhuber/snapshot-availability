@@ -115,12 +115,14 @@ and merge on the indicators for MOU status:
 allmous <- merge(all,mous,by.x="geography",by.y = "fips",all.x = TRUE)
 size <- allmous[allmous$ind_level=="A",]
 industry <- allmous[allmous$industry != "00",]
+save(industry,file="industry.Rdata")
 ```
 
 > Users who want to consider different variables might change the following option:
 
 ```{r setvar,echo=TRUE}
-usevar <- "Emp"
+qwi_names=names(industry)[17:48]
+usevar <- qwi_names[1]
 ```
 # Results
 
