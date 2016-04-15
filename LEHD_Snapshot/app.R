@@ -13,17 +13,15 @@ library(RCurl)
 
 
 totalheight <- 500
+baseurl <- "https://raw.githubusercontent.com/larsvilhuber/snapshot-availability/master/"
+industry <- read.csv(text=getURL(paste(baseurl,"qwi_industry_extract.csv",sep = "")))
+version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
 
 server <- shinyServer(function(input, output) {
   
 #  industry <- reactive({
 #    dataset.full
 #  })
-  baseurl <- "https://raw.githubusercontent.com/larsvilhuber/snapshot-availability/master/"
-  data <- getURL(paste(baseurl,"qwi_industry_extract.csv",sep = ""))
-  industry <- read.csv(text=data)
-  cat(file=stderr(),ls())
-  version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
 
   
   output$plot <- renderPlot({
