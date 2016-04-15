@@ -22,7 +22,7 @@ server <- shinyServer(function(input, output) {
   baseurl <- "https://raw.githubusercontent.com/larsvilhuber/snapshot-availability/master/"
   data <- getURL(paste(baseurl,"qwi_industry_extract.csv",sep = ""))
   industry <- read.csv(text=data)
-  
+  cat(file=stderr(),ls())
   version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
 
   
