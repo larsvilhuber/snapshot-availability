@@ -88,12 +88,18 @@ To assess the claim, we are going to use public-use QWI data, drawn from `r urlb
 qwivintage <- "latest_release"
 qwiyear    <- 2014
 qwiquarter <- 1
+# Read the version file
+version.url <- url(paste(urlbase,"ak",qwivintage,"DVD-sa_f","version_sa_f.txt",sep="/"))
+version <- read.csv(version.url,header = FALSE,sep = "",as.is = TRUE)
+names(version) <- c("type","state","fips","range","schema","release","vintage")
+write.csv(x = version[,c("type","schema","release")],file="metadata.csv")
 ```
 
 # Some Technical Stuff
 
 We first define (source) a function to download QWI CSV files.
 ```{r define_function}
+download.date <- Sys.Date()
 source("download_qwi.R",echo = TRUE)
 ```
 We then cycle through all the states and download the relevant file. 
@@ -125,6 +131,8 @@ qwi_names=names(industry)[17:48]
 usevar <- qwi_names[1]
 ```
 # Results
+
+The following results were based on data downloaded on `r download.date`, at which point at least one of the downloaded states was from release `r version$release` (we downloaded from `r qwivintage`). 
 
 The industry distribution of **`r usevar`** by chosen option thus looks like this:
 ```{r graph_Emp,echo=FALSE}
