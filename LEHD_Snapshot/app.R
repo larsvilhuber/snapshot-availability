@@ -104,8 +104,10 @@ ui <- shinyUI(fluidPage(
            selectInput('usevar', 'Variable to use', names(industry)[17:48],selected = "Emp")
     ),
     column(4,offset = 1,
-    checkboxInput('showtable', 'Show data', TRUE)
+#    checkboxInput('showtable', 'Show data', TRUE)
 #    checkboxInput('smooth', 'Smooth')
+               downloadButton('downloadData', 'Download dataset'),
+              downloadButton('downloadMetadata', 'Download metadata')
     )
   ),
 
@@ -113,19 +115,19 @@ ui <- shinyUI(fluidPage(
   
     plotOutput('plot'),
 
-  hr(),
+  hr()
 
   # With the conditionalPanel, the condition is a JavaScript
   # expression. In these expressions, input values like
   # input$n are accessed with dots, as in input.n
-  fluidRow(
-    column(4,
-           downloadButton('downloadData', 'Download dataset')
-           ),
-    column(4,
-           downloadButton('downloadMetadata', 'Download metadata')
-           )
-    )
+#  fluidRow(
+#    column(4,
+#           downloadButton('downloadData', 'Download dataset')
+#           ),
+#    column(4,
+#           downloadButton('downloadMetadata', 'Download metadata')
+#           )
+#    )
 ))
 # Run the application 
 shinyApp(ui = ui, server = server)
