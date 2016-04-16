@@ -109,7 +109,9 @@ ui <- shinyUI(fluidPage(
     ),
     column(8,
     plotOutput('plot')
-    ),
+    )
+   ),
+
 
   hr()
 
