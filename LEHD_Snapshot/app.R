@@ -101,7 +101,7 @@ ui <- shinyUI(fluidPage(
 
   fluidRow(
     column(4,
-           selectInput('usevar', 'Variable to use', names(industry)[17:48],selected = "Emp"),
+           selectInput('usevar', 'Variable to use', names(industry)[18:49],selected = "Emp"),
            #    checkboxInput('showtable', 'Show data', TRUE)
            #    checkboxInput('smooth', 'Smooth')
            downloadButton('downloadData', 'Download dataset'),
