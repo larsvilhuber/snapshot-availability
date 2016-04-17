@@ -78,7 +78,7 @@ where $\theta$ are parameters associated with the data generating process, and $
 # Comparing sets of states
 To assess the claim, we are going to use public-use QWI data, drawn from `r urlbase`, to assess how comparable the set of states having chosen Option `r mouoption` are, compared to the remaining states, based on a variety of variables available.
 
-> Users who wish to consider a different variable should feel free to clone this git repository, and change parameters of interest.
+> Users who wish to consider different variables than the ones we show here should feel free to [https://github.com/larsvilhuber/snapshot-availability](clone this git repository), and change parameters of interest, or access our [http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/](interactive webpage).
 
 # Parameters
 
@@ -97,7 +97,7 @@ write.csv(x = version[,c("type","schema","release")],file="metadata.csv")
 
 # Some Technical Stuff
 
-We first define (source) a function `[download_qwi.R](download_qwi.R) to download and subset QWI CSV files.
+We first define (source) a function '[download_qwi.R](download_qwi.R)' to download and subset QWI CSV files.
 ```{r define_function}
 source("download_qwi.R",echo = TRUE)
 ```
@@ -108,7 +108,7 @@ time.qwi <- system.time(for (x in qwistates) {
   eval(parse(text=paste("qwi_",tolower(x)," <- download_qwi(\"",x,"\")",sep = "")))
   })
 ```
-The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes.
+The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes on `r download.date`.
 
 Now that we have the files, we collate them all into a single file:
 ```{r collate_states,cache=TRUE}
@@ -133,7 +133,9 @@ usevar
 ```
 # Results
 
-The following results were based on data downloaded on `r download.date`, at which point at least one of the downloaded states was from release `r version$release` (we downloaded from `r qwivintage`). 
+The following results were based on data downloaded on `r download.date`, at which point at least one of the downloaded states was from release `r version$release` (we downloaded from '`r qwivintage`'). 
+
+> An interactive version of these graphs can be found at http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/.  
 
 The industry distribution of **`r usevar`** by chosen option thus looks like this:
 ```{r graph_Emp,echo=FALSE}
