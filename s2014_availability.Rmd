@@ -78,7 +78,7 @@ where $\theta$ are parameters associated with the data generating process, and $
 # Comparing sets of states
 To assess the claim, we are going to use public-use QWI data, drawn from `r urlbase`, to assess how comparable the set of states having chosen Option `r mouoption` are, compared to the remaining states, based on a variety of variables available.
 
-> Users who wish to consider different variables than the ones we show here should feel free to [https://github.com/larsvilhuber/snapshot-availability](clone this git repository), and change parameters of interest, or access our [http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/](interactive webpage).
+> Users who wish to consider different variables than the ones we show here should feel free to [clone this git repository](https://github.com/larsvilhuber/snapshot-availability), and change parameters of interest, or access our [interactive webpage](http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/).
 
 # Parameters
 
