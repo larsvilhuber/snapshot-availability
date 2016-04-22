@@ -122,6 +122,7 @@ allmous <- merge(all,mous,by.x="geography",by.y = "fips",all.x = TRUE)
 size <- allmous[allmous$ind_level=="A",]
 industry <- allmous[allmous$industry != "00",]
 save(industry,file="industry.Rdata")
+write.csv(x = industry,file="qwi_industry_extract.csv")
 ```
 
 > Users who want to consider different variables might change the following option:
