@@ -98,7 +98,7 @@ write.csv(x = version[,c("type","schema","release")],file="metadata.csv")
 # Some Technical Stuff
 
 We first define (source) a function '[download_qwi.R](download_qwi.R)' to download and subset QWI CSV files.
-```{r define_function}
+```{r define_function,cache=FALSE}
 source("download_qwi.R",echo = TRUE)
 ```
 We then cycle through all the states and download the relevant file. 
@@ -122,6 +122,7 @@ allmous <- merge(all,mous,by.x="geography",by.y = "fips",all.x = TRUE)
 size <- allmous[allmous$ind_level=="A",]
 industry <- allmous[allmous$industry != "00",]
 save(industry,file="industry.Rdata")
+save(all,file="all_qwi.Rdata")
 write.csv(x = industry,file="qwi_industry_extract.csv")
 ```
 
@@ -130,11 +131,11 @@ write.csv(x = industry,file="qwi_industry_extract.csv")
 ```{r setvar,echo=TRUE}
 qwi_names=names(industry)[17:48]
 usevar <- qwi_names[1]
-usevar
+industry <- subset(industry, year==qwiyear & quarter==qwiquarter)
 ```
 # Results
 
-The following results were based on data downloaded on `r download.date`, at which point at least one of the downloaded states was from release `r version$release` (we downloaded from '`r qwivintage`'). 
+The following results were based on data for `r qwiyear`Q`r qwiquarter`, downloaded on `r download.date`, at which point at least one of the downloaded states was from release `r version$release` (we downloaded from '`r qwivintage`'). 
 
 > An interactive version of these graphs can be found at http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/.  
 
