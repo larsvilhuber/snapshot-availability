@@ -15,6 +15,9 @@ library(RCurl)
 totalheight <- 500
 baseurl <- "https://raw.githubusercontent.com/larsvilhuber/snapshot-availability/master/"
 industry <- read.csv(text=getURL(paste(baseurl,"qwi_industry_extract.csv",sep = "")),stringsAsFactors = FALSE)
+# For debug, use this version
+#industry <- read.csv("../qwi_industry_extract.csv",stringsAsFactors = FALSE)
+industry$yq <- paste(industry$year,industry$quarter,sep="Q")
 industry[is.na(industry$Option),c("Option")]<- "NA"
 version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
 
@@ -22,19 +25,24 @@ server <- shinyServer(function(input, output) {
 
   grpsums.r <- reactive({
     if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
-    grpsums <- aggregate(industry[,input$usevar], list(Option=industry$Option),FUN=sum, na.rm=TRUE)
+    industry <- subset(industry,yq==input$yq)
+    grpsums <- aggregate(industry[,input$usevar], list(Option=industry$Option),
+                                FUN=sum, na.rm=TRUE)
     names(grpsums)[2] <- "sumvar"
     grpsums
   })
 
   grpsums2.r <- reactive({
     if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
-    grpsums2 <- aggregate(industry[,input$usevar], list(Option=industry$Option,industry=industry$industry),
-                                                 FUN=sum, na.rm=TRUE)
+    industry <- subset(industry,yq==input$yq)
+    grpsums2 <- aggregate(industry[,input$usevar], 
+                          list(Option=industry$Option,industry=industry$industry),
+                          FUN=sum, na.rm=TRUE)
+    grpsums2$yq <- input$yq
     names(grpsums2)[3] <- input$usevar
     grpsums2 <- merge(grpsums2,grpsums.r())
     grpsums2$pctvar <- 100*grpsums2[,3]/grpsums2$sumvar
-    grpsums2
+    grpsums2[with(grpsums2, order(Option,industry)),c("yq","Option","industry","pctvar") ]
   })
   
   # ggindustry2.r <- reactive({
@@ -49,6 +57,7 @@ server <- shinyServer(function(input, output) {
   
   ggindustry.r <- reactive({
     if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
+    industry <- subset(industry,yq==input$yq)
 #    sumvar <- paste("sum",input$usevar,sep = "")
 #    grpsums <- aggregate(industry[,input$usevar], list(Option=industry$Option),FUN=sum, na.rm=TRUE)
 #    names(grpsums)[2] <- sumvar
@@ -118,6 +127,7 @@ ui <- shinyUI(fluidPage(
   fluidRow(
     column(4,
            selectInput('usevar', 'Variable to use', names(industry)[18:49],selected = "Emp"),
+           selectInput('yq', 'Year-Quarter', sort(unique(industry[,"yq"])), selected = "2014Q4", selectize=TRUE),
            checkboxInput('showtable', 'Show data', FALSE),
            checkboxInput('mergeB', 'Merge B and NA'),
            downloadButton('downloadData', 'Download dataset'),
