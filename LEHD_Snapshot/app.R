@@ -14,18 +14,27 @@ library(RCurl)
 
 totalheight <- 500
 baseurl <- "https://raw.githubusercontent.com/larsvilhuber/snapshot-availability/master/"
-industry <- read.csv(text=getURL(paste(baseurl,"qwi_industry_extract.csv",sep = "")),stringsAsFactors = FALSE)
-# For debug, use this version
-#industry <- read.csv("../qwi_industry_extract.csv",stringsAsFactors = FALSE)
+#industry <- read.csv(text=getURL(paste(baseurl,"qwi_industry_extract.csv",sep = "")),stringsAsFactors = FALSE)
+#
+industry <- read.csv("qwi_industry_extract.csv",stringsAsFactors = FALSE)
 industry$yq <- paste(industry$year,industry$quarter,sep="Q")
 industry[is.na(industry$Option),c("Option")]<- "NA"
 version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
 
 server <- shinyServer(function(input, output) {
 
-  grpsums.r <- reactive({
+  industry.r <- reactive({
     if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
     industry <- subset(industry,yq==input$yq)
+    industry    
+  })
+  
+  states.r <- reactive({
+    states <- unique(industry.r()[,c("state","Option")])
+  })
+  
+  grpsums.r <- reactive({
+    industry <- industry.r()
     grpsums <- aggregate(industry[,input$usevar], list(Option=industry$Option),
                                 FUN=sum, na.rm=TRUE)
     names(grpsums)[2] <- "sumvar"
@@ -33,8 +42,7 @@ server <- shinyServer(function(input, output) {
   })
 
   grpsums2.r <- reactive({
-    if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
-    industry <- subset(industry,yq==input$yq)
+    industry <- industry.r()
     grpsums2 <- aggregate(industry[,input$usevar], 
                           list(Option=industry$Option,industry=industry$industry),
                           FUN=sum, na.rm=TRUE)
@@ -45,22 +53,9 @@ server <- shinyServer(function(input, output) {
     grpsums2[with(grpsums2, order(Option,industry)),c("yq","Option","industry","pctvar") ]
   })
   
-  # ggindustry2.r <- reactive({
-  # grpsums2 <- aggregate(industry[,input$usevar], list(Option=industry$Option,industry=industry$industry),
-  #                       FUN=sum, na.rm=TRUE)
-  # head(grpsums2)
-  # names(grpsums2)[3] <- sumvar
-  # gindustry2 <- merge(industry,grpsums2)
-  # gindustry2$pctvar <- gindustry2[,input$usevar] / gindustry2[,sumvar]
-  # gindustry2
-  # })
-  
+
   ggindustry.r <- reactive({
-    if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
-    industry <- subset(industry,yq==input$yq)
-#    sumvar <- paste("sum",input$usevar,sep = "")
-#    grpsums <- aggregate(industry[,input$usevar], list(Option=industry$Option),FUN=sum, na.rm=TRUE)
-#    names(grpsums)[2] <- sumvar
+    industry <- industry.r()
     gindustry <- merge(industry,grpsums.r())
     gindustry$pctvar <- gindustry[,input$usevar] / gindustry[,"sumvar"]
     gindustry
@@ -68,8 +63,22 @@ server <- shinyServer(function(input, output) {
 
 
   output$plot <- renderPlot({
-
+    #industry <- industry.r()
+    states <- states.r()
+    #print(table(states$Option))
+    # kludgy way to do labels
+    #print(table(industry$Option))
     ggindustry <- ggindustry.r()
+    ggindustry[,c("Option")] <-  ifelse(ggindustry$Option == "A",
+                                      paste("A (",table(states$Option)[1]," states)",sep = ""),
+                                      ggindustry$Option)
+    ggindustry[,c("Option")] <-  ifelse(ggindustry$Option == "B",
+                                      paste("B (",table(states$Option)[2]," states)",sep = ""),
+                                      ggindustry$Option)
+    ggindustry[,c("Option")] <-  ifelse(ggindustry$Option == "NA",
+                                      paste("NA (",table(states$Option)[3]," states)",sep = ""),
+                                      ggindustry$Option)
+    #print(table(ggindustry$Option))
         # now plot the whole thing
     gg <-ggplot(data=ggindustry,aes(industry,weight=pctvar,fill=Option)) +geom_bar(position="dodge",alpha=.5) +
       ylab(paste("Distribution of ",input$usevar,sep="")) +
@@ -91,6 +100,11 @@ server <- shinyServer(function(input, output) {
   })
 
 
+  output$states <- renderDataTable({
+    #ggindustry2.r()[,c("state", "Option","industry", "pctvar")]
+    states.r()[,c("state","Option")]
+  },options = list(searching = FALSE))
+  
     output$downloadData <- downloadHandler(
     filename = function() {
       paste("qwi_industry_extract", '.csv', sep='')
@@ -126,9 +140,10 @@ ui <- shinyUI(fluidPage(
 
   fluidRow(
     column(4,
-           selectInput('usevar', 'Variable to use', names(industry)[18:49],selected = "Emp"),
-           selectInput('yq', 'Year-Quarter', sort(unique(industry[,"yq"])), selected = "2014Q4", selectize=TRUE),
+           selectInput('usevar', 'Choose a different indicator as appropriate:', names(industry)[18:49],selected = "Emp"),
+           selectInput('yq', 'Choosing a different time period will also change the available states:', sort(unique(industry[,"yq"])), selected = "2014Q4", selectize=TRUE),
            checkboxInput('showtable', 'Show data', FALSE),
+           checkboxInput('showstates', 'Show states', FALSE),
            checkboxInput('mergeB', 'Merge B and NA'),
            downloadButton('downloadData', 'Download dataset'),
           downloadButton('downloadMetadata', 'Download metadata')
@@ -141,9 +156,14 @@ ui <- shinyUI(fluidPage(
 
 #  hr(),
   
-  fluidRow(conditionalPanel(
+  fluidRow(
+    column(5,conditionalPanel(
+      condition = "input.showstates == true",
+      dataTableOutput('states'))),
+    column(7,conditionalPanel(
     condition = "input.showtable == true",
   dataTableOutput('view')))
+  )
 
   # With the conditionalPanel, the condition is a JavaScript
   # expression. In these expressions, input values like
