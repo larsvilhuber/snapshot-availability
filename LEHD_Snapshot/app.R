@@ -21,9 +21,13 @@ industry <- read.csv("qwi_industry_extract.csv",stringsAsFactors = FALSE)
 industry$yq <- paste(industry$year,industry$quarter,sep="Q")
 industry[is.na(industry$Option),c("Option")]<- "NA"
 version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
+version$variables <- "variables_qwipu.csv"
 
+# TEMPORARY: override schema version
+version$schema <- "V4.1d-draft"
+version$variables <- "variables_qwi.csv"
 # read in labels
-namesQWI <-  read.csv(text=getURL(paste(qwischemaurl,version$schema,"variables_qwipu.csv",sep = "/")),stringsAsFactors = FALSE)
+namesQWI <-  read.csv(text=getURL(paste(qwischemaurl,version$schema,version$variables,sep = "/")),stringsAsFactors = FALSE)
 # this maps short names to verbose names, and subsets to only the right ones
 namesData <- as.data.frame(names(industry))
 names(namesData)[1] <- "Variable"
@@ -175,7 +179,8 @@ ui <- shinyUI(fluidPage(
     ),
     column(8,
              selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
-                                    selected = choices$Indicator.Name[1],width = "100%")
+                          selected = as.character(choices[choices$Variable=="Emp",c("Indicator.Name")]),
+                          width = "100%")
                  ,
              plotOutput('plot')
     )
