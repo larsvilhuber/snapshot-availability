@@ -14,6 +14,7 @@ library(RCurl)
 
 totalheight <- 500
 baseurl <- "https://raw.githubusercontent.com/larsvilhuber/snapshot-availability/master/"
+qwischemaurl <- "http://lehd.ces.census.gov/data/schema/"
 #industry <- read.csv(text=getURL(paste(baseurl,"qwi_industry_extract.csv",sep = "")),stringsAsFactors = FALSE)
 #
 industry <- read.csv("qwi_industry_extract.csv",stringsAsFactors = FALSE)
@@ -21,8 +22,22 @@ industry$yq <- paste(industry$year,industry$quarter,sep="Q")
 industry[is.na(industry$Option),c("Option")]<- "NA"
 version <-  read.csv(text=getURL(paste(baseurl,"metadata.csv",sep = "")))
 
+# read in labels
+namesQWI <-  read.csv(text=getURL(paste(qwischemaurl,version$schema,"variables_qwipu.csv",sep = "/")),stringsAsFactors = FALSE)
+# this maps short names to verbose names, and subsets to only the right ones
+namesData <- as.data.frame(names(industry))
+names(namesData)[1] <- "Variable"
+choices <- merge(namesData,namesQWI,by.x = "Variable", by.y = "Indicator.Variable",stringsAsFactors = FALSE)
+
+
 server <- shinyServer(function(input, output) {
 
+  usevar.r <- reactive({
+    usevar <- as.character(choices[choices$Indicator.Name==input$usevarName,c("Variable")])
+    #print(usevar)
+    usevar
+  })
+  
   industry.r <- reactive({
     if ( input$mergeB == TRUE ) { industry[industry$Option == "NA",c("Option")]<- "B" }
     industry <- subset(industry,yq==input$yq)
@@ -35,7 +50,7 @@ server <- shinyServer(function(input, output) {
   
   grpsums.r <- reactive({
     industry <- industry.r()
-    grpsums <- aggregate(industry[,input$usevar], list(Option=industry$Option),
+    grpsums <- aggregate(industry[,usevar.r()], list(Option=industry$Option),
                                 FUN=sum, na.rm=TRUE)
     names(grpsums)[2] <- "sumvar"
     grpsums
@@ -43,11 +58,11 @@ server <- shinyServer(function(input, output) {
 
   grpsums2.r <- reactive({
     industry <- industry.r()
-    grpsums2 <- aggregate(industry[,input$usevar], 
+    grpsums2 <- aggregate(industry[,usevar.r()], 
                           list(Option=industry$Option,industry=industry$industry),
                           FUN=sum, na.rm=TRUE)
     grpsums2$yq <- input$yq
-    names(grpsums2)[3] <- input$usevar
+    names(grpsums2)[3] <- usevar.r()
     grpsums2 <- merge(grpsums2,grpsums.r())
     grpsums2$pctvar <- 100*grpsums2[,3]/grpsums2$sumvar
     grpsums2[with(grpsums2, order(Option,industry)),c("yq","Option","industry","pctvar") ]
@@ -57,7 +72,7 @@ server <- shinyServer(function(input, output) {
   ggindustry.r <- reactive({
     industry <- industry.r()
     gindustry <- merge(industry,grpsums.r())
-    gindustry$pctvar <- gindustry[,input$usevar] / gindustry[,"sumvar"]
+    gindustry$pctvar <- gindustry[,usevar.r()] / gindustry[,"sumvar"]
     gindustry
   })
 
@@ -81,7 +96,7 @@ server <- shinyServer(function(input, output) {
     #print(table(ggindustry$Option))
         # now plot the whole thing
     gg <-ggplot(data=ggindustry,aes(industry,weight=pctvar,fill=Option)) +geom_bar(position="dodge",alpha=.5) +
-      ylab(paste("Distribution of ",input$usevar,sep="")) +
+      ylab(paste("Distribution of ",usevar.r(),sep="")) +
       xlab("NAICS sector") +
       scale_fill_brewer(type="qual", palette = "Dark2")
     gg <- gg +   theme(axis.line = element_line(colour = "black"),
@@ -133,14 +148,24 @@ ui <- shinyUI(fluidPage(
 
   includeMarkdown("header.md"),
 
+  
   fluidRow(
     column(12,
            textOutput("maintext",container = span))
   ),
-
+#  fluidRow(
+#    column(12,
+#           #           selectInput('usevar', 'Choose a different indicator as appropriate:', names(industry)[18:49],selected = "Emp"),
+#           selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
+#                       selected = choices$Indicator.Name[1],width = "100%")
+#    )
+#    ),
   fluidRow(
     column(4,
-           selectInput('usevar', 'Choose a different indicator as appropriate:', names(industry)[18:49],selected = "Emp"),
+#           selectInput('usevar', 'Choose a different indicator as appropriate:', names(industry)[18:49],selected = "Emp"),
+#           selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
+#                       selected = choices$Indicator.Name[1]),
+#           selectInput('usevar', 'Choose a different indicator as appropriate:', choices$Variable),
            selectInput('yq', 'Choosing a different time period will also change the available states:', sort(unique(industry[,"yq"])), selected = "2014Q4", selectize=TRUE),
            checkboxInput('showtable', 'Show data', FALSE),
            checkboxInput('showstates', 'Show states', FALSE),
@@ -149,7 +174,10 @@ ui <- shinyUI(fluidPage(
           downloadButton('downloadMetadata', 'Download metadata')
     ),
     column(8,
-    plotOutput('plot')
+             selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
+                                    selected = choices$Indicator.Name[1],width = "100%")
+                 ,
+             plotOutput('plot')
     )
    ),
 
@@ -157,10 +185,10 @@ ui <- shinyUI(fluidPage(
 #  hr(),
   
   fluidRow(
-    column(5,conditionalPanel(
+    column(4,conditionalPanel(
       condition = "input.showstates == true",
       dataTableOutput('states'))),
-    column(7,conditionalPanel(
+    column(8,conditionalPanel(
     condition = "input.showtable == true",
   dataTableOutput('view')))
   )
