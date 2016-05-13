@@ -85,7 +85,7 @@ server <- shinyServer(function(input, output) {
 
   output$test <- renderText({
     ggindustry <- ggindustry.r()
-    ggindustry$Option <- relevel(as.factor(ggindustry$Option), ref= "A")
+    ggindustry$Option <- droplevels(relevel(as.factor(ggindustry$Option), ref= "A"))
     model <- as.formula(paste("Option ~ ",usevar.r(),sep=""))
     #pander(table(ggindustry$Option))
     #myprobit <- glm(formula = model ,family=binomial(link = "logit"), data=ggindustry)
