@@ -10,6 +10,9 @@
 library(shiny)
 library(ggplot2)
 library(RCurl)
+#library(pander)
+library(stargazer)
+library(nnet)
 
 
 totalheight <- 500
@@ -80,7 +83,19 @@ server <- shinyServer(function(input, output) {
     gindustry
   })
 
-
+  output$test <- renderText({
+    ggindustry <- ggindustry.r()
+    ggindustry$Option <- relevel(as.factor(ggindustry$Option), ref= "A")
+    model <- as.formula(paste("Option ~ ",usevar.r(),sep=""))
+    #pander(table(ggindustry$Option))
+    #myprobit <- glm(formula = model ,family=binomial(link = "logit"), data=ggindustry)
+    #pander(myprobit,caption = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+    #pander(myprobit)
+    mylogit <- multinom(formula = model ,data=ggindustry)
+    stargazer(mylogit,type = "html",title = paste("Multinomial logit model for Option ~",usevar.r(),sep=""),
+              intercept.bottom = FALSE,style = "qje")
+  })
+  
   output$plot <- renderPlot({
     #industry <- industry.r()
     states <- states.r()
@@ -141,9 +156,10 @@ server <- shinyServer(function(input, output) {
       write.csv(version[,2:4], file)
     }
   )
-})
 
-  maintext <- "This is a test."
+  output$mlogittext <- renderText("Assessing the MCAR assumption:")
+  })
+
 
 # Define UI for application that draws a histogram
 ui <- shinyUI(fluidPage(
@@ -151,7 +167,8 @@ ui <- shinyUI(fluidPage(
   titlePanel("LEHD Snapshot Comparability"),
 
   includeMarkdown("header.md"),
-
+#  includeMarkdown("mlogit.md"),
+  
   
   fluidRow(
     column(12,
@@ -165,30 +182,48 @@ ui <- shinyUI(fluidPage(
 #    )
 #    ),
   fluidRow(
-    column(4,
+    column(3,
 #           selectInput('usevar', 'Choose a different indicator as appropriate:', names(industry)[18:49],selected = "Emp"),
 #           selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
 #                       selected = choices$Indicator.Name[1]),
 #           selectInput('usevar', 'Choose a different indicator as appropriate:', choices$Variable),
-           selectInput('yq', 'Choosing a different time period will also change the available states:', sort(unique(industry[,"yq"])), selected = "2014Q4", selectize=TRUE),
-           checkboxInput('showtable', 'Show data', FALSE),
+          selectInput('yq', 'Choosing a different time period will also change the available states:', sort(unique(industry[,"yq"])), selected = "2014Q4", selectize=TRUE),
+          checkboxInput('showlogit', 'Show MCAR test', FALSE),
+          checkboxInput('showtable', 'Show data', FALSE),
            checkboxInput('showstates', 'Show states', FALSE),
            checkboxInput('mergeB', 'Merge B and NA'),
            downloadButton('downloadData', 'Download dataset'),
           downloadButton('downloadMetadata', 'Download metadata')
     ),
-    column(8,
+# when logit visible
+#    conditionalPanel(condition = "input.showlogit == true",
+                     column(6,
              selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
                           selected = as.character(choices[choices$Variable=="Emp",c("Indicator.Name")]),
                           width = "100%")
                  ,
              plotOutput('plot')
-    )
-   ),
+    ),
+#),
+# when logit visible
+  conditionalPanel(condition = "input.showlogit == true",
+                     column(3,
+           textOutput("mlogittext",container = span),
+           htmlOutput("test")
+    ))
+# # when logit not visible
+  # conditionalPanel(
+  # condition = "input.showlogit == false",
+  # column(9,
+  #        selectInput('usevarName', 'Choose a different indicator as appropriate:', choices$Indicator.Name,
+  #                    selected = as.character(choices[choices$Variable=="Emp",c("Indicator.Name")]),
+  #                    width = "100%")
+  #        ,
+  #        plotOutput('plot')
+  # ))),
+# 
+  ),
 
-
-#  hr(),
-  
   fluidRow(
     column(4,conditionalPanel(
       condition = "input.showstates == true",

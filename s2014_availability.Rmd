@@ -18,6 +18,10 @@ Users of the LEHD data in the Federal Statistical Research Data Centers (FSRDC) 
 library(gdata)
 library(knitr)
 library(ggplot2)
+#library(stargazer)
+library(pander)
+library(nnet)
+#library(xtable)
 xlsloc <- "."
 xlsversion <- "12-10-2015"
 xlsversion1 <- "020108"
@@ -78,7 +82,7 @@ where $\theta$ are parameters associated with the data generating process, and $
 # Comparing sets of states
 To assess the claim, we are going to use public-use QWI data, drawn from `r urlbase`, to assess how comparable the set of states having chosen Option `r mouoption` are, compared to the remaining states, based on a variety of variables available.
 
-> Users who wish to consider different variables than the ones we show here should feel free to [clone this git repository](https://github.com/larsvilhuber/snapshot-availability), and change parameters of interest, or access our [interactive webpage](http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/).
+> Users who wish to consider different variables than the ones we show here should feel free to [clone this git repository](https://github.com/larsvilhuber/snapshot-availability), and change parameters of interest, or access our [interactive webpage](https://www.ncrn.cornell.edu/d/LEHD_Snapshot/).
 
 # Parameters
 
@@ -123,7 +127,7 @@ size <- allmous[allmous$ind_level=="A",]
 industry <- allmous[allmous$industry != "00",]
 save(industry,file="industry.Rdata")
 save(all,file="all_qwi.Rdata")
-write.csv(x = industry,file="qwi_industry_extract.csv")
+write.csv(x = industry,file="LEHD_Snapshot/qwi_industry_extract.csv")
 ```
 
 > Users who want to consider different variables might change the following option:
@@ -134,10 +138,10 @@ usevar <- qwi_names[1]
 industry <- subset(industry, year==qwiyear & quarter==qwiquarter)
 ```
 # Results
-
+## `r usevar`
 The following results were based on data for `r qwiyear`Q`r qwiquarter`, downloaded on `r download.date`, at which point at least one of the downloaded states was from release `r version$release` (we downloaded from '`r qwivintage`'). 
 
-> An interactive version of these graphs can be found at http://www.ncrn.cornell.edu:3838/LEHD_Snapshot/.  
+> An interactive version of these graphs can be found at https://www.ncrn.cornell.edu/d/LEHD_Snapshot/.  
 
 The industry distribution of **`r usevar`** by chosen option thus looks like this:
 ```{r graph_Emp,echo=FALSE}
@@ -166,17 +170,32 @@ gg
 ```
 
 
+```{r MCAR,echo=FALSE,results="asis",warning=FALSE,error=FALSE,collapse=TRUE,message=FALSE}
+gindustry2 <- gindustry
+gindustry2[gindustry2$Option == "NA",c("Option")]<- "B" 
+gindustry2$Option <- relevel(gindustry2$Option, ref= "A")
+model <- as.formula(paste("Option ~ ",usevar,sep=""))
+#myprobit <- glm(formula = model ,family=binomial(link = "probit"), data=gindustry2)
+mylogit <- multinom(formula = model ,data=gindustry2)
+#stargazer(myprobit,type = "html",title = "Logit model",intercept.bottom = FALSE,style = "qje")
+pander(mylogit,caption = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+```
+
+
 ```{r,echo=FALSE}
 usevar <- "SepBeg"
 ```
+## `r usevar`
 
 For the industry distribution of **`r usevar`**, the distribution looks like this:
+
 ```{r graph_SepBeg,echo=FALSE,ref.label="graph_Emp"}
 ```
 
 ```{r,echo=FALSE}
 usevar <- "Payroll"
 ```
+## `r usevar`
 
 For the industry distribution of **`r usevar`**, the distribution looks like this:
 ```{r graph_Payroll,echo=FALSE,ref.label="graph_Emp"}
