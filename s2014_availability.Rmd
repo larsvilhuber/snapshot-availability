@@ -3,6 +3,7 @@ title: "Snapshot S2014 availability"
 author: "Lars Vilhuber"
 output:
   html_document:
+    keep_md: yes
     toc: yes
     toc_depth: 1
   pdf_document:
@@ -18,8 +19,8 @@ Users of the LEHD data in the Federal Statistical Research Data Centers (FSRDC) 
 library(gdata)
 library(knitr)
 library(ggplot2)
-#library(stargazer)
-library(pander)
+library(stargazer)
+#library(pander)
 library(nnet)
 #library(xtable)
 xlsloc <- "."
@@ -121,7 +122,7 @@ for (x in qwistates[1]) { eval(parse(text=paste("all <- qwi_",tolower(x),sep = "
 for (x in qwistates[-1]) { eval(parse(text=paste("all <- rbind(all,qwi_",tolower(x),")",sep = "")))}
 ```
 and merge on the indicators for MOU status:
-```{r merge_mou}
+```{r merge_mou,cache=TRUE}
 allmous <- merge(all,mous,by.x="geography",by.y = "fips",all.x = TRUE)
 size <- allmous[allmous$ind_level=="A",]
 industry <- allmous[allmous$industry != "00",]
@@ -170,15 +171,16 @@ gg
 ```
 
 
-```{r MCAR,echo=FALSE,results="asis",warning=FALSE,error=FALSE,collapse=TRUE,message=FALSE}
-gindustry2 <- gindustry
-gindustry2[gindustry2$Option == "NA",c("Option")]<- "B" 
-gindustry2$Option <- relevel(gindustry2$Option, ref= "A")
-model <- as.formula(paste("Option ~ ",usevar,sep=""))
-#myprobit <- glm(formula = model ,family=binomial(link = "probit"), data=gindustry2)
-mylogit <- multinom(formula = model ,data=gindustry2)
-#stargazer(myprobit,type = "html",title = "Logit model",intercept.bottom = FALSE,style = "qje")
-pander(mylogit,caption = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+```{r MCAR1, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  gindustry2 <- gindustry
+  gindustry2[gindustry2$Option == "NA",c("Option")]<- "B" 
+  gindustry2$Option <- droplevels(relevel(gindustry2$Option, ref= "A"))
+  model <- as.formula(paste("Option ~ ",usevar,sep=""))
+  #myprobit <- glm(formula = model ,family=binomial(link = "probit"), data=gindustry2)
+  mylogit <- multinom(formula = model ,data=gindustry2)
+  #stargazer(myprobit,type = "html",title = "Logit model",intercept.bottom = FALSE,style = "qje")
+  stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
 ```
 
 
@@ -191,6 +193,11 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 
 ```{r graph_SepBeg,echo=FALSE,ref.label="graph_Emp"}
 ```
+```{r MCAR_SepBeg,echo=FALSE,error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  model <- as.formula(paste("Option ~ ",usevar,sep=""))
+stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+```
 
 ```{r,echo=FALSE}
 usevar <- "Payroll"
@@ -199,6 +206,11 @@ usevar <- "Payroll"
 
 For the industry distribution of **`r usevar`**, the distribution looks like this:
 ```{r graph_Payroll,echo=FALSE,ref.label="graph_Emp"}
+```
+```{r MCAR_Payroll,echo=FALSE,error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  model <- as.formula(paste("Option ~ ",usevar,sep=""))
+  stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
 ```
 
 Additional variables (see the [http://lehd.ces.census.gov/data/schema/V4.0.4/lehd_public_use_schema.html](LEHD Schema) for names) can be easily added to the Rmd source file.
