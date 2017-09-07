@@ -4,6 +4,7 @@ author: "Lars Vilhuber"
 output:
   html_document:
     keep_md: yes
+    self_contained: no
     toc: yes
     toc_depth: 1
   pdf_document:
@@ -162,12 +163,12 @@ gg <-ggplot(data=gindustry,aes(industry,weight=pctvar,fill=Option)) +geom_bar(po
   scale_fill_brewer(type="qual", palette = "Dark2")
 gg <- gg +   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
-        panel.grid.major.x = element_line(colour="black"),
+        #panel.grid.major.x = element_line(colour="black"),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank())
 gg
-
+png(paste("graph_",usevar,".png",sep=""),width=1200,height=480)
 ```
 
 
@@ -175,12 +176,21 @@ gg
   gindustry2 <- gindustry
   gindustry2[gindustry2$Option == "NA",c("Option")]<- "B" 
   gindustry2$Option <- droplevels(relevel(gindustry2$Option, ref= "A"))
+  # we adjust the usevar variable's scale
+  correction <- round(log(summary(gindustry2[,usevar])[4],10))
+  gindustry2[,usevar] <- gindustry2[,usevar]/10^correction
+  # now define the model
   model <- as.formula(paste("Option ~ ",usevar,sep=""))
   #myprobit <- glm(formula = model ,family=binomial(link = "probit"), data=gindustry2)
   mylogit <- multinom(formula = model ,data=gindustry2)
   #stargazer(myprobit,type = "html",title = "Logit model",intercept.bottom = FALSE,style = "qje")
   stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+  # also output to latex
+  invisible(capture.output(
+    stargazer(mylogit,type="latex",out=paste("table_MCAR_",usevar,".tex",sep=""),
+            intercept.bottom=FALSE, style="qje",float=FALSE,
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))))
 ```
 
 
@@ -194,10 +204,37 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 ```{r graph_SepBeg,echo=FALSE,ref.label="graph_Emp"}
 ```
 ```{r MCAR_SepBeg,echo=FALSE,error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  # we adjust the usevar variable's scale
+  correction <- round(log(summary(gindustry2[,usevar])[4],10))
+  gindustry2[,usevar] <- gindustry2[,usevar]/10^correction
+  # now define the model
   model <- as.formula(paste("Option ~ ",usevar,sep=""))
-stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
+  mylogit <- multinom(formula = model ,data=gindustry2)
+  stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+  # also output to latex
+  invisible(capture.output(
+    stargazer(mylogit,type="latex",out=paste("table_MCAR_",usevar,".tex",sep=""),
+            intercept.bottom=FALSE, style="qje",float=FALSE,
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))))
 ```
+
+## Putting both variables in the same model
+If we use both these two variables in the same MCAR model, we obtain the following:
+```{r MCAR_Emp_SepBeg,echo=FALSE,error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  # now define the model
+  model <- as.formula(paste("Option ~ Emp+",usevar,sep=""))
+  mylogit <- multinom(formula = model ,data=gindustry2)
+  stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
+            title = paste("Test of MCAR for Emp+`",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+  # also output to latex
+  invisible(capture.output(
+    stargazer(mylogit,type="latex",out=paste("table_MCAR_Emp_",usevar,".tex",sep=""),
+            intercept.bottom=FALSE, style="qje",float=FALSE,
+            title = paste("Test of MCAR for Emp+`",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))))
+```
+
+
 
 ```{r,echo=FALSE}
 usevar <- "Payroll"
@@ -208,7 +245,12 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
 ```{r graph_Payroll,echo=FALSE,ref.label="graph_Emp"}
 ```
 ```{r MCAR_Payroll,echo=FALSE,error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  # we adjust the usevar variable's scale
+  correction <- round(log(summary(gindustry2[,usevar])[4],10))
+  gindustry2[,usevar] <- gindustry2[,usevar]/10^correction
+  # now define the model
   model <- as.formula(paste("Option ~ ",usevar,sep=""))
+  mylogit <- multinom(formula = model ,data=gindustry2)
   stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
 ```
