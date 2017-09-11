@@ -129,17 +129,17 @@ $(document).ready(function () {
 <li><a href="#some-technical-stuff">Some Technical Stuff</a></li>
 <li><a href="#results">Results</a></li>
 <li><a href="#weights-3-2-variable">weights: 3 (2 variable)</a></li>
-<li><a href="#appendix-full-list-of-state-mous-and-option-chosen-as-of-12-10-2015">Appendix: Full list of state MOUs and option chosen as of 12-10-2015</a></li>
+<li><a href="#appendix-full-list-of-state-mous-and-option-chosen-as-of-09-08-2017">Appendix: Full list of state MOUs and option chosen as of 09-08-2017</a></li>
 </ul>
 </div>
 
 <p>Users of the LEHD data in the Federal Statistical Research Data Centers (FSRDC) can only access data from states that have granted non-Census researchers access to the data. There are, in short, two options that a state can choose: the state can delegate the approval process to the Census Bureau, which will grant access to qualified researchers on qualified research projects (option A); or it can itself review and approve projects that are submitted through the FSRDC project system (option B). Thus, researchers will automatically get access to states with option A if their project is approved by the Census Bureau, and may later obtain access to states’ data that chose option B.</p>
 <p>We obtained a list of the state of the MOUs as of</p>
 <blockquote>
-<p><strong>12-10-2015.</strong></p>
+<p><strong>09-08-2017.</strong></p>
 </blockquote>
 <p>There are still a few states at this time that have an older form of the MOU, and for which we cannot easily deduce the option chosen. Here, we will use the later versions (version 2) that have selected “Option A”.</p>
-<p>Of the 53 states with a MOU on file as of 12-10-2015 with the Census Bureau, 14 have chosen Option A:</p>
+<p>Of the 51 states with a MOU on file as of 09-08-2017 with the Census Bureau, 12 have chosen Option A:</p>
 <table>
 <thead>
 <tr class="header">
@@ -150,15 +150,15 @@ $(document).ready(function () {
 <tbody>
 <tr class="odd">
 <td align="left">A</td>
-<td align="right">14</td>
+<td align="right">12</td>
 </tr>
 <tr class="even">
 <td align="left">B</td>
-<td align="right">29</td>
+<td align="right">32</td>
 </tr>
 <tr class="odd">
 <td align="left">NA</td>
-<td align="right">10</td>
+<td align="right">7</td>
 </tr>
 </tbody>
 </table>
@@ -203,7 +203,7 @@ write.csv(x = version[,c(&quot;type&quot;,&quot;schema&quot;,&quot;release&quot;
 time.qwi &lt;- system.time(for (x in qwistates) { 
   eval(parse(text=paste(&quot;qwi_&quot;,tolower(x),&quot; &lt;- download_qwi(\&quot;&quot;,x,&quot;\&quot;)&quot;,sep = &quot;&quot;)))
   })</code></pre>
-<p>The above code can take a while, in this example and on my computer, it ran for 20 minutes on 2016-05-13.</p>
+<p>The above code can take a while, in this example and on my computer, it ran for 24 minutes on 2017-09-10.</p>
 <p>Now that we have the files, we collate them all into a single file:</p>
 <pre class="r"><code>for (x in qwistates) { eval(parse(text=paste(&quot;qwi_&quot;,tolower(x),&quot;$state = \&quot;&quot;,x,&quot;\&quot;&quot;,sep = &quot;&quot;)))}
 for (x in qwistates[1]) { eval(parse(text=paste(&quot;all &lt;- qwi_&quot;,tolower(x),sep = &quot;&quot;)))}
@@ -226,7 +226,7 @@ industry &lt;- subset(industry, year==qwiyear &amp; quarter==qwiquarter)</code><
 <h1>Results</h1>
 <div id="emp" class="section level2">
 <h2>Emp</h2>
-<p>The following results were based on data for 2014Q1, downloaded on 2016-05-13, at which point at least one of the downloaded states was from release R2017Q2 (we downloaded from ‘latest_release’).</p>
+<p>The following results were based on data for 2014Q1, downloaded on 2017-09-10, at which point at least one of the downloaded states was from release R2017Q2 (we downloaded from ‘latest_release’).</p>
 <blockquote>
 <p>An interactive version of these graphs can be found at <a href="https://www.ncrn.cornell.edu/d/LEHD_Snapshot/" class="uri">https://www.ncrn.cornell.edu/d/LEHD_Snapshot/</a>.</p>
 </blockquote>
@@ -235,7 +235,7 @@ industry &lt;- subset(industry, year==qwiyear &amp; quarter==qwiquarter)</code><
 </div>
 <div id="weights-3-2-variable" class="section level1">
 <h1>weights: 3 (2 variable)</h1>
-<p>initial value 705.623830 final value 589.550598 converged</p>
+<p>initial value 705.623830 iter 10 value 539.399565 iter 10 value 539.399565 iter 10 value 539.399565 final value 539.399565 converged</p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for <code>Emp</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -260,14 +260,14 @@ Option
 Constant
 </td>
 <td>
-0.790<sup>***</sup>
+0.888<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.086)
+(0.094)
 </td>
 </tr>
 <tr>
@@ -281,14 +281,14 @@ Constant
 Emp
 </td>
 <td>
-0.168<sup>***</sup>
+0.295<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.050)
+(0.068)
 </td>
 </tr>
 <tr>
@@ -302,7 +302,7 @@ Emp
 Akaike Inf. Crit.
 </td>
 <td>
-1,183.101
+1,082.799
 </td>
 </tr>
 <tr>
@@ -335,7 +335,7 @@ Akaike Inf. Crit.
 <div id="sepbeg" class="section level2">
 <h2>SepBeg</h2>
 <p>For the industry distribution of <strong>SepBeg</strong>, the distribution looks like this:</p>
-<p><img src="s2014_availability_files/figure-html/graph_SepBeg-1.png" /><!-- --> # weights: 3 (2 variable) initial value 705.623830 final value 592.347963 converged</p>
+<p><img src="s2014_availability_files/figure-html/graph_SepBeg-1.png" /><!-- --> # weights: 3 (2 variable) initial value 705.623830 iter 10 value 544.536674 iter 10 value 544.536674 iter 10 value 544.536674 final value 544.536674 converged</p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for <code>SepBeg</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -360,14 +360,14 @@ Option
 Constant
 </td>
 <td>
-0.850<sup>***</sup>
+0.979<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.083)
+(0.089)
 </td>
 </tr>
 <tr>
@@ -381,14 +381,14 @@ Constant
 SepBeg
 </td>
 <td>
-0.114<sup>***</sup>
+0.204<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.043)
+(0.058)
 </td>
 </tr>
 <tr>
@@ -402,7 +402,7 @@ SepBeg
 Akaike Inf. Crit.
 </td>
 <td>
-1,188.696
+1,093.073
 </td>
 </tr>
 <tr>
@@ -435,7 +435,7 @@ Akaike Inf. Crit.
 </div>
 <div id="putting-both-variables-in-the-same-model" class="section level2">
 <h2>Putting both variables in the same model</h2>
-<p>If we use both these two variables in the same MCAR model, we obtain the following: # weights: 4 (3 variable) initial value 705.623830 iter 10 value 589.241753 iter 10 value 589.241749 final value 589.241726 converged</p>
+<p>If we use both these two variables in the same MCAR model, we obtain the following: # weights: 4 (3 variable) initial value 705.623830 iter 10 value 539.041576 final value 538.896265 converged</p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for Emp+<code>SepBeg</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -460,14 +460,14 @@ Option
 Constant
 </td>
 <td>
-0.789<sup>***</sup>
+0.884<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.086)
+(0.094)
 </td>
 </tr>
 <tr>
@@ -481,14 +481,14 @@ Constant
 Emp
 </td>
 <td>
-0.234<sup>**</sup>
+0.403<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.099)
+(0.130)
 </td>
 </tr>
 <tr>
@@ -502,14 +502,14 @@ Emp
 SepBeg
 </td>
 <td>
--0.064
+-0.104
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.080)
+(0.101)
 </td>
 </tr>
 <tr>
@@ -523,7 +523,7 @@ SepBeg
 Akaike Inf. Crit.
 </td>
 <td>
-1,184.483
+1,083.793
 </td>
 </tr>
 <tr>
@@ -556,7 +556,7 @@ Akaike Inf. Crit.
 </div>
 <div id="payroll" class="section level2">
 <h2>Payroll</h2>
-<p>For the industry distribution of <strong>Payroll</strong>, the distribution looks like this: <img src="s2014_availability_files/figure-html/graph_Payroll-1.png" /><!-- --> # weights: 3 (2 variable) initial value 705.623830 iter 10 value 588.188084 final value 588.188069 converged</p>
+<p>For the industry distribution of <strong>Payroll</strong>, the distribution looks like this: <img src="s2014_availability_files/figure-html/graph_Payroll-1.png" /><!-- --> # weights: 3 (2 variable) initial value 705.623830 iter 10 value 536.439672 final value 536.439626 converged</p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for <code>Payroll</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -581,14 +581,14 @@ Option
 Constant
 </td>
 <td>
-0.786<sup>***</sup>
+0.870<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.085)
+(0.093)
 </td>
 </tr>
 <tr>
@@ -602,14 +602,14 @@ Constant
 Payroll
 </td>
 <td>
-0.135<sup>***</sup>
+0.253<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.039)
+(0.055)
 </td>
 </tr>
 <tr>
@@ -623,7 +623,7 @@ Payroll
 Akaike Inf. Crit.
 </td>
 <td>
-1,180.376
+1,076.879
 </td>
 </tr>
 <tr>
@@ -656,12 +656,11 @@ Akaike Inf. Crit.
 <p>Additional variables (see the <a href="LEHD%20Schema">http://lehd.ces.census.gov/data/schema/V4.0.4/lehd_public_use_schema.html</a> for names) can be easily added to the Rmd source file.</p>
 </div>
 </div>
-<div id="appendix-full-list-of-state-mous-and-option-chosen-as-of-12-10-2015" class="section level1">
-<h1>Appendix: Full list of state MOUs and option chosen as of 12-10-2015</h1>
+<div id="appendix-full-list-of-state-mous-and-option-chosen-as-of-09-08-2017" class="section level1">
+<h1>Appendix: Full list of state MOUs and option chosen as of 09-08-2017</h1>
 <table>
 <thead>
 <tr class="header">
-<th></th>
 <th align="right">fips</th>
 <th align="left">Abbr</th>
 <th align="left">Name</th>
@@ -670,374 +669,309 @@ Akaike Inf. Crit.
 </thead>
 <tbody>
 <tr class="odd">
-<td>1</td>
 <td align="right">1</td>
 <td align="left">AL</td>
 <td align="left">Alabama</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>2</td>
 <td align="right">2</td>
 <td align="left">AK</td>
 <td align="left">Alaska</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
-<td>3</td>
 <td align="right">4</td>
 <td align="left">AZ</td>
 <td align="left">Arizona</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>4</td>
 <td align="right">5</td>
 <td align="left">AR</td>
 <td align="left">Arkansas</td>
 <td align="left">A</td>
 </tr>
 <tr class="odd">
-<td>5</td>
 <td align="right">6</td>
 <td align="left">CA</td>
 <td align="left">California</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>6</td>
 <td align="right">8</td>
 <td align="left">CO</td>
 <td align="left">Colorado</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>7</td>
 <td align="right">9</td>
 <td align="left">CT</td>
 <td align="left">Connecticut</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>8</td>
 <td align="right">10</td>
 <td align="left">DE</td>
 <td align="left">Delaware</td>
 <td align="left">A</td>
 </tr>
 <tr class="odd">
-<td>9</td>
 <td align="right">11</td>
 <td align="left">DC</td>
 <td align="left">District of Columbia</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>10</td>
 <td align="right">12</td>
 <td align="left">FL</td>
 <td align="left">Florida</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>11</td>
 <td align="right">13</td>
 <td align="left">GA</td>
 <td align="left">Georgia</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>12</td>
 <td align="right">15</td>
-<td align="left">Hi</td>
+<td align="left">HI</td>
 <td align="left">Hawaii</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>13</td>
 <td align="right">16</td>
 <td align="left">ID</td>
 <td align="left">Idaho</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>14</td>
 <td align="right">17</td>
 <td align="left">IL</td>
 <td align="left">Illinois</td>
-<td align="left">A</td>
+<td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>15</td>
 <td align="right">18</td>
 <td align="left">IN</td>
 <td align="left">Indiana</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>16</td>
 <td align="right">19</td>
 <td align="left">IA</td>
 <td align="left">Iowa</td>
 <td align="left">A</td>
 </tr>
 <tr class="odd">
-<td>17</td>
 <td align="right">20</td>
 <td align="left">KS</td>
 <td align="left">Kansas</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>18</td>
 <td align="right">21</td>
 <td align="left">KY</td>
 <td align="left">Kentucky</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>19</td>
 <td align="right">22</td>
 <td align="left">LA</td>
 <td align="left">Louisiana</td>
-<td align="left">A</td>
+<td align="left">B</td>
 </tr>
 <tr class="even">
-<td>20</td>
 <td align="right">23</td>
 <td align="left">ME</td>
 <td align="left">Maine</td>
 <td align="left">A</td>
 </tr>
 <tr class="odd">
-<td>21</td>
 <td align="right">24</td>
 <td align="left">MD</td>
 <td align="left">Maryland</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>22</td>
 <td align="right">25</td>
 <td align="left">MA</td>
 <td align="left">Massachusetts</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>23</td>
 <td align="right">26</td>
 <td align="left">MI</td>
 <td align="left">Michigan</td>
-<td align="left">NA</td>
+<td align="left">B</td>
 </tr>
 <tr class="even">
-<td>24</td>
 <td align="right">27</td>
 <td align="left">MN</td>
 <td align="left">Minnesota</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>25</td>
 <td align="right">28</td>
 <td align="left">MS</td>
 <td align="left">Mississippi</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
-<td>26</td>
 <td align="right">29</td>
 <td align="left">MO</td>
 <td align="left">Missouri</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>27</td>
 <td align="right">30</td>
 <td align="left">MT</td>
 <td align="left">Montana</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>28</td>
 <td align="right">31</td>
 <td align="left">NE</td>
 <td align="left">Nebraska</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
-<td>29</td>
 <td align="right">32</td>
 <td align="left">NV</td>
 <td align="left">Nevada</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>30</td>
 <td align="right">33</td>
 <td align="left">NH</td>
 <td align="left">New Hampshire</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>31</td>
 <td align="right">34</td>
 <td align="left">NJ</td>
 <td align="left">New Jersey</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>32</td>
 <td align="right">35</td>
 <td align="left">NM</td>
 <td align="left">New Mexico</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>33</td>
 <td align="right">36</td>
 <td align="left">NY</td>
 <td align="left">New York</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
-<td>34</td>
 <td align="right">37</td>
 <td align="left">NC</td>
 <td align="left">North Carolina</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>35</td>
 <td align="right">38</td>
 <td align="left">ND</td>
 <td align="left">North Dakota</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>36</td>
 <td align="right">39</td>
 <td align="left">OH</td>
 <td align="left">Ohio</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
-<td>37</td>
 <td align="right">40</td>
 <td align="left">OK</td>
 <td align="left">Oklahoma</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>38</td>
 <td align="right">41</td>
 <td align="left">OR</td>
 <td align="left">Oregon</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>39</td>
 <td align="right">42</td>
 <td align="left">PA</td>
 <td align="left">Pennsylvania</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>40</td>
 <td align="right">44</td>
 <td align="left">RI</td>
 <td align="left">Rhode Island</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>41</td>
 <td align="right">45</td>
 <td align="left">SC</td>
 <td align="left">South Carolina</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>42</td>
 <td align="right">46</td>
 <td align="left">SD</td>
 <td align="left">South Dakota</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
-<td>43</td>
 <td align="right">47</td>
 <td align="left">TN</td>
 <td align="left">Tennessee</td>
 <td align="left">A</td>
 </tr>
 <tr class="even">
-<td>44</td>
 <td align="right">48</td>
 <td align="left">TX</td>
 <td align="left">Texas</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>45</td>
 <td align="right">49</td>
 <td align="left">UT</td>
 <td align="left">Utah</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>46</td>
 <td align="right">50</td>
 <td align="left">VT</td>
 <td align="left">Vermont</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>47</td>
 <td align="right">51</td>
 <td align="left">VA</td>
 <td align="left">Virginia</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>48</td>
 <td align="right">53</td>
 <td align="left">WA</td>
 <td align="left">Washington</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>49</td>
 <td align="right">54</td>
 <td align="left">WV</td>
 <td align="left">West Virginia</td>
 <td align="left">B</td>
 </tr>
 <tr class="even">
-<td>50</td>
 <td align="right">55</td>
 <td align="left">WI</td>
 <td align="left">Wisconsin</td>
 <td align="left">B</td>
 </tr>
 <tr class="odd">
-<td>51</td>
 <td align="right">56</td>
 <td align="left">WY</td>
 <td align="left">Wyoming</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td>53</td>
-<td align="right">72</td>
-<td align="left">PR</td>
-<td align="left">Puerto Rico</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td>54</td>
-<td align="right">78</td>
-<td align="left">VI</td>
-<td align="left">Virgin Islands</td>
 <td align="left">NA</td>
 </tr>
 </tbody>
