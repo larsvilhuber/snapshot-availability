@@ -128,7 +128,6 @@ $(document).ready(function () {
 <li><a href="#parameters">Parameters</a></li>
 <li><a href="#some-technical-stuff">Some Technical Stuff</a></li>
 <li><a href="#results">Results</a></li>
-<li><a href="#weights-3-2-variable">weights: 3 (2 variable)</a></li>
 <li><a href="#appendix-full-list-of-state-mous-and-option-chosen-as-of-09-08-2017">Appendix: Full list of state MOUs and option chosen as of 09-08-2017</a></li>
 </ul>
 </div>
@@ -162,6 +161,7 @@ $(document).ready(function () {
 </tr>
 </tbody>
 </table>
+<p>However, of the 39 states that have not selected Option A, 13 (33.33%) have nevertheless regularly approved research proposals.</p>
 <div id="missing-completely-at-random" class="section level1">
 <h1>Missing Completely at Random</h1>
 <p>While the number of states that have not agreed to Option A may seem small, from a statistical point of view, they have one important feature: the decision to participate (<span class="math inline">\(M\)</span>) is (most likely) not correlated with any observable characteristic (<span class="math inline">\(Y\)</span>) of the non-participating state (Statistical Analysis with Missing Data, 2nd edition, Roderick J. A. Little and Donald B. Rubin, New York: John Wiley &amp; Sons, 2002):</p>
@@ -198,12 +198,13 @@ write.csv(x = version[,c(&quot;type&quot;,&quot;schema&quot;,&quot;release&quot;
 ## &gt; download_qwi &lt;- function(state, qyear = NA, qquarter = NA) {
 ## +     qwifile &lt;- paste(&quot;qwi&quot;, tolower(state), &quot;sa_f_gs_ns_oslp_u&quot;, 
 ## +         sep = &quot;_&quot; .... [TRUNCATED]</code></pre>
+<pre class="r"><code>download.date &lt;- Sys.Date()</code></pre>
 <p>We then cycle through all the states and download the relevant file.</p>
 <pre class="r"><code>download.date &lt;- Sys.Date()
 time.qwi &lt;- system.time(for (x in qwistates) { 
   eval(parse(text=paste(&quot;qwi_&quot;,tolower(x),&quot; &lt;- download_qwi(\&quot;&quot;,x,&quot;\&quot;)&quot;,sep = &quot;&quot;)))
-  })</code></pre>
-<p>The above code can take a while, in this example and on my computer, it ran for 24 minutes on 2017-09-10.</p>
+  })
+# The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes on `r download.date`.</code></pre>
 <p>Now that we have the files, we collate them all into a single file:</p>
 <pre class="r"><code>for (x in qwistates) { eval(parse(text=paste(&quot;qwi_&quot;,tolower(x),&quot;$state = \&quot;&quot;,x,&quot;\&quot;&quot;,sep = &quot;&quot;)))}
 for (x in qwistates[1]) { eval(parse(text=paste(&quot;all &lt;- qwi_&quot;,tolower(x),sep = &quot;&quot;)))}
@@ -220,22 +221,19 @@ write.csv(x = industry,file=&quot;LEHD_Snapshot/qwi_industry_extract.csv&quot;)<
 </blockquote>
 <pre class="r"><code>qwi_names=names(industry)[17:48]
 usevar &lt;- qwi_names[1]
-industry &lt;- subset(industry, year==qwiyear &amp; quarter==qwiquarter)</code></pre>
+industry &lt;- subset(industry, year==qwiyear &amp; quarter==qwiquarter)
+industry &lt;- merge(industry,mous[,c(&quot;fips&quot;,&quot;CURRENT.FREQUENTLY.APPROVED.STATE&quot;)],by.x=c(&quot;geography&quot;),by.y=c(&quot;fips&quot;))</code></pre>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
 <div id="emp" class="section level2">
 <h2>Emp</h2>
-<p>The following results were based on data for 2014Q1, downloaded on 2017-09-10, at which point at least one of the downloaded states was from release R2017Q2 (we downloaded from ‘latest_release’).</p>
+<p>The following results were based on data for 2014Q1, downloaded on 2017-09-13, at which point at least one of the downloaded states was from release R2017Q2 (we downloaded from ‘latest_release’).</p>
 <blockquote>
 <p>An interactive version of these graphs can be found at <a href="https://www.ncrn.cornell.edu/d/LEHD_Snapshot/" class="uri">https://www.ncrn.cornell.edu/d/LEHD_Snapshot/</a>.</p>
 </blockquote>
 <p>The industry distribution of <strong>Emp</strong> by chosen option thus looks like this: <img src="s2014_availability_files/figure-html/graph_Emp-1.png" /><!-- --></p>
-</div>
-</div>
-<div id="weights-3-2-variable" class="section level1">
-<h1>weights: 3 (2 variable)</h1>
-<p>initial value 705.623830 iter 10 value 539.399565 iter 10 value 539.399565 iter 10 value 539.399565 final value 539.399565 converged</p>
+<p>If we run the MCAR model (mapping <code>NA</code> to <code>B</code>, i.e., by default assuming that a state says “no” to a proposal), the following result obtains:</p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for <code>Emp</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -332,10 +330,108 @@ Akaike Inf. Crit.
 </td>
 </tr>
 </table>
+<p>However, as pointed out earlier, 13 states frequently say “yes” to research proposals, even though they did not choose Option A. If we map those states as if they had chosen Option A, then the following (optimistic) result obtains:</p>
+<table style="text-align:center">
+<caption>
+<strong>Test of MCAR for <code>Emp</code> (<code>NA</code> to <code>B</code>, <code>B</code> to <code>A</code> if frequent <code>yes</code>)</strong>
+</caption>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Option
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+0.198<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.076)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Emp
+</td>
+<td>
+-0.124<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.035)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Akaike Inf. Crit.
+</td>
+<td>
+1,400.767
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Notes:</em>
+</td>
+<td style="text-align:right">
+<sup>***</sup>Significant at the 1 percent level.
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td style="text-align:right">
+<sup>**</sup>Significant at the 5 percent level.
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td style="text-align:right">
+<sup>*</sup>Significant at the 10 percent level.
+</td>
+</tr>
+</table>
+</div>
 <div id="sepbeg" class="section level2">
 <h2>SepBeg</h2>
 <p>For the industry distribution of <strong>SepBeg</strong>, the distribution looks like this:</p>
-<p><img src="s2014_availability_files/figure-html/graph_SepBeg-1.png" /><!-- --> # weights: 3 (2 variable) initial value 705.623830 iter 10 value 544.536674 iter 10 value 544.536674 iter 10 value 544.536674 final value 544.536674 converged</p>
+<p><img src="s2014_availability_files/figure-html/graph_SepBeg-1.png" /><!-- --></p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for <code>SepBeg</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -435,7 +531,7 @@ Akaike Inf. Crit.
 </div>
 <div id="putting-both-variables-in-the-same-model" class="section level2">
 <h2>Putting both variables in the same model</h2>
-<p>If we use both these two variables in the same MCAR model, we obtain the following: # weights: 4 (3 variable) initial value 705.623830 iter 10 value 539.041576 final value 538.896265 converged</p>
+<p>If we use both these two variables in the same MCAR model, we obtain the following:</p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for Emp+<code>SepBeg</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>
@@ -556,7 +652,7 @@ Akaike Inf. Crit.
 </div>
 <div id="payroll" class="section level2">
 <h2>Payroll</h2>
-<p>For the industry distribution of <strong>Payroll</strong>, the distribution looks like this: <img src="s2014_availability_files/figure-html/graph_Payroll-1.png" /><!-- --> # weights: 3 (2 variable) initial value 705.623830 iter 10 value 536.439672 final value 536.439626 converged</p>
+<p>For the industry distribution of <strong>Payroll</strong>, the distribution looks like this: <img src="s2014_availability_files/figure-html/graph_Payroll-1.png" /><!-- --></p>
 <table style="text-align:center">
 <caption>
 <strong>Test of MCAR for <code>Payroll</code> (conditional on mapping <code>NA</code> into <code>B</code>)</strong>

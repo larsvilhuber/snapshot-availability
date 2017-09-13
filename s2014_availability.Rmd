@@ -75,6 +75,15 @@ names(mous.table)[1] <- "Option"
 kable(mous.table,row.names = FALSE)
 ```
 
+```{r frequent_yes,echo=FALSE,cache=TRUE}
+frequent_yes <- read.xls(paste(xlsloc,"/","Summary of Option B state approvals FY17_for Lars.xlsx",sep=""),sheet = 1)
+mous <- merge(mous,frequent_yes[,c("STATE","CURRENT.FREQUENTLY.APPROVED.STATE")],by.x=c("Name"),by.y=c("STATE"))
+# not selected
+n_not_mouoption <- nrow(mous[mous$Option != mouoption & is.na(mous$Option)==FALSE,])
+n_frequent_yes <- nrow(mous[mous$Option != mouoption & mous$CURRENT.FREQUENTLY.APPROVED.STATE == "X",])
+```
+However, of the `r n_not_mouoption` states that have not selected Option `r mouoption`, `r n_frequent_yes` (`r round(100*n_frequent_yes/n_not_mouoption,2)`%) have nevertheless regularly approved research proposals.
+
 # Missing Completely at Random
 While the number of states that have not agreed to Option `r mouoption` may seem small, from a statistical point of view, they have one important feature: the decision to participate ($M$) is (most likely) not correlated with any observable characteristic ($Y$) of the non-participating state (Statistical Analysis with Missing Data, 2nd edition, Roderick J. A. Little and Donald B. Rubin, New York: John Wiley & Sons, 2002):
 
@@ -89,7 +98,7 @@ To assess the claim, we are going to use public-use QWI data, drawn from `r urlb
 
 # Parameters
 
-```{r qwi_parameters}
+```{r qwi_parameters,cache=TRUE}
 # common quarter to look at
 # this could be deduced from metadata, here we hard-code it
 qwivintage <- "latest_release"
@@ -107,15 +116,17 @@ write.csv(x = version[,c("type","schema","release")],file="metadata.csv")
 We first define (source) a function '[download_qwi.R](download_qwi.R)' to download and subset QWI CSV files.
 ```{r define_function,cache=FALSE}
 source("download_qwi.R",echo = TRUE)
+download.date <- Sys.Date()
 ```
 We then cycle through all the states and download the relevant file. 
-```{r download_all,cache=TRUE}
+```{r download_all,cache=TRUE,eval=FALSE}
 download.date <- Sys.Date()
 time.qwi <- system.time(for (x in qwistates) { 
   eval(parse(text=paste("qwi_",tolower(x)," <- download_qwi(\"",x,"\")",sep = "")))
   })
+# The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes on `r download.date`.
+
 ```
-The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes on `r download.date`.
 
 Now that we have the files, we collate them all into a single file:
 ```{r collate_states,cache=TRUE}
@@ -139,6 +150,8 @@ write.csv(x = industry,file="LEHD_Snapshot/qwi_industry_extract.csv")
 qwi_names=names(industry)[17:48]
 usevar <- qwi_names[1]
 industry <- subset(industry, year==qwiyear & quarter==qwiquarter)
+industry <- merge(industry,mous[,c("fips","CURRENT.FREQUENTLY.APPROVED.STATE")],by.x=c("geography"),by.y=c("fips"))
+
 ```
 # Results
 ## `r usevar`
@@ -172,6 +185,7 @@ gg
 png(paste("graph_",usevar,".png",sep=""),width=1200,height=480)
 ```
 
+If we run the MCAR model (mapping `NA` to `B`, i.e., by default assuming that a state says "no" to a proposal), the following result obtains:
 
 ```{r MCAR1, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results="asis"}
   gindustry2 <- gindustry
@@ -183,7 +197,7 @@ png(paste("graph_",usevar,".png",sep=""),width=1200,height=480)
   # now define the model
   model <- as.formula(paste("Option ~ ",usevar,sep=""))
   #myprobit <- glm(formula = model ,family=binomial(link = "probit"), data=gindustry2)
-  mylogit <- multinom(formula = model ,data=gindustry2)
+  invisible(capture.output(mylogit <- multinom(formula = model ,data=gindustry2)))
   #stargazer(myprobit,type = "html",title = "Logit model",intercept.bottom = FALSE,style = "qje")
   stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
@@ -194,6 +208,25 @@ png(paste("graph_",usevar,".png",sep=""),width=1200,height=480)
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))))
 ```
 
+However, as pointed out earlier, `r n_frequent_yes` states frequently say "yes" to research proposals, even though they did not choose Option `r mouoption`. If we map those states as if they had chosen Option `r mouoption`, then the following (optimistic) result obtains:
+
+```{r MCAR1b, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results="asis"}
+  gindustry3 <- gindustry2
+  gindustry3[gindustry3$Option != mouoption &
+               gindustry3$CURRENT.FREQUENTLY.APPROVED.STATE == "X",c("Option")]<- "A" 
+  gindustry3$Option <- droplevels(relevel(gindustry3$Option, ref= "A"))
+  #myprobit <- glm(formula = model ,family=binomial(link = "probit"), data=gindustry2)
+  invisible(capture.output(
+    mylogit <- multinom(formula = model ,data=gindustry3)
+  ))
+  stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
+            title = paste("Test of MCAR for `",usevar,"` (`NA` to `B`, `B` to `A` if frequent `yes`)",sep=""))
+  # also output to latex
+  invisible(capture.output(
+    stargazer(mylogit,type="latex",out=paste("table_MCARb_",usevar,".tex",sep=""),
+            intercept.bottom=FALSE, style="qje",float=FALSE,
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))))
+```
 
 ```{r,echo=FALSE}
 usevar <- "SepBeg"
@@ -210,14 +243,17 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
   gindustry2[,usevar] <- gindustry2[,usevar]/10^correction
   # now define the model
   model <- as.formula(paste("Option ~ ",usevar,sep=""))
-  mylogit <- multinom(formula = model ,data=gindustry2)
+  invisible(capture.output(
+    mylogit <- multinom(formula = model ,data=gindustry2)
+  ))
   stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
   # also output to latex
   invisible(capture.output(
     stargazer(mylogit,type="latex",out=paste("table_MCAR_",usevar,".tex",sep=""),
             intercept.bottom=FALSE, style="qje",float=FALSE,
-            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))))
+            title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
+    ))
 ```
 
 ## Putting both variables in the same model
@@ -225,7 +261,9 @@ If we use both these two variables in the same MCAR model, we obtain the followi
 ```{r MCAR_Emp_SepBeg,echo=FALSE,error=FALSE, message=FALSE, warning=FALSE, results="asis"}
   # now define the model
   model <- as.formula(paste("Option ~ Emp+",usevar,sep=""))
-  mylogit <- multinom(formula = model ,data=gindustry2)
+  invisible(capture.output(
+    mylogit <- multinom(formula = model ,data=gindustry2)
+  ))
   stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for Emp+`",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
   # also output to latex
@@ -251,7 +289,9 @@ For the industry distribution of **`r usevar`**, the distribution looks like thi
   gindustry2[,usevar] <- gindustry2[,usevar]/10^correction
   # now define the model
   model <- as.formula(paste("Option ~ ",usevar,sep=""))
-  mylogit <- multinom(formula = model ,data=gindustry2)
+  invisible(capture.output(
+    mylogit <- multinom(formula = model ,data=gindustry2)
+  ))
   stargazer(mylogit,type="html",intercept.bottom=FALSE, style="qje",
             title = paste("Test of MCAR for `",usevar,"` (conditional on mapping `NA` into `B`)",sep=""))
 ```

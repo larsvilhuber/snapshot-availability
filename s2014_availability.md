@@ -23,6 +23,9 @@ A           12
 B           32
 NA           7
 
+
+However, of the 39 states that have not selected Option A, 13 (33.33%) have nevertheless regularly approved research proposals.
+
 # Missing Completely at Random
 While the number of states that have not agreed to Option A may seem small, from a statistical point of view, they have one important feature: the decision to participate ($M$) is (most likely) not correlated with any observable characteristic ($Y$) of the non-participating state (Statistical Analysis with Missing Data, 2nd edition, Roderick J. A. Little and Donald B. Rubin, New York: John Wiley & Sons, 2002):
 
@@ -65,6 +68,10 @@ source("download_qwi.R",echo = TRUE)
 ## +     qwifile <- paste("qwi", tolower(state), "sa_f_gs_ns_oslp_u", 
 ## +         sep = "_" .... [TRUNCATED]
 ```
+
+```r
+download.date <- Sys.Date()
+```
 We then cycle through all the states and download the relevant file. 
 
 ```r
@@ -72,8 +79,8 @@ download.date <- Sys.Date()
 time.qwi <- system.time(for (x in qwistates) { 
   eval(parse(text=paste("qwi_",tolower(x)," <- download_qwi(\"",x,"\")",sep = "")))
   })
+# The above code can take a while, in this example and on my computer, it ran for `r round(time.qwi[1]/60,0)` minutes on `r download.date`.
 ```
-The above code can take a while, in this example and on my computer, it ran for 24 minutes on 2017-09-10.
 
 Now that we have the files, we collate them all into a single file:
 
@@ -100,24 +107,19 @@ write.csv(x = industry,file="LEHD_Snapshot/qwi_industry_extract.csv")
 qwi_names=names(industry)[17:48]
 usevar <- qwi_names[1]
 industry <- subset(industry, year==qwiyear & quarter==qwiquarter)
+industry <- merge(industry,mous[,c("fips","CURRENT.FREQUENTLY.APPROVED.STATE")],by.x=c("geography"),by.y=c("fips"))
 ```
 # Results
 ## Emp
-The following results were based on data for 2014Q1, downloaded on 2017-09-10, at which point at least one of the downloaded states was from release R2017Q2 (we downloaded from 'latest_release'). 
+The following results were based on data for 2014Q1, downloaded on 2017-09-13, at which point at least one of the downloaded states was from release R2017Q2 (we downloaded from 'latest_release'). 
 
 > An interactive version of these graphs can be found at https://www.ncrn.cornell.edu/d/LEHD_Snapshot/.  
 
 The industry distribution of **Emp** by chosen option thus looks like this:
 ![](s2014_availability_files/figure-html/graph_Emp-1.png)<!-- -->
 
+If we run the MCAR model (mapping `NA` to `B`, i.e., by default assuming that a state says "no" to a proposal), the following result obtains:
 
-# weights:  3 (2 variable)
-initial  value 705.623830 
-iter  10 value 539.399565
-iter  10 value 539.399565
-iter  10 value 539.399565
-final  value 539.399565 
-converged
 
 <table style="text-align:center"><caption><strong>Test of MCAR for `Emp` (conditional on mapping `NA` into `B`)</strong></caption>
 <tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td>Option</td></tr>
@@ -133,6 +135,22 @@ converged
 <tr><td style="text-align:left"></td><td style="text-align:right"><sup>*</sup>Significant at the 10 percent level.</td></tr>
 </table>
 
+However, as pointed out earlier, 13 states frequently say "yes" to research proposals, even though they did not choose Option A. If we map those states as if they had chosen Option A, then the following (optimistic) result obtains:
+
+
+<table style="text-align:center"><caption><strong>Test of MCAR for `Emp` (`NA` to `B`, `B` to `A` if frequent `yes`)</strong></caption>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td>Option</td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Constant</td><td>0.198<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.076)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td style="text-align:left">Emp</td><td>-0.124<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.035)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td style="text-align:left">Akaike Inf. Crit.</td><td>1,400.767</td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Notes:</em></td><td style="text-align:right"><sup>***</sup>Significant at the 1 percent level.</td></tr>
+<tr><td style="text-align:left"></td><td style="text-align:right"><sup>**</sup>Significant at the 5 percent level.</td></tr>
+<tr><td style="text-align:left"></td><td style="text-align:right"><sup>*</sup>Significant at the 10 percent level.</td></tr>
+</table>
 
 
 ## SepBeg
@@ -140,13 +158,6 @@ converged
 For the industry distribution of **SepBeg**, the distribution looks like this:
 
 ![](s2014_availability_files/figure-html/graph_SepBeg-1.png)<!-- -->
-# weights:  3 (2 variable)
-initial  value 705.623830 
-iter  10 value 544.536674
-iter  10 value 544.536674
-iter  10 value 544.536674
-final  value 544.536674 
-converged
 
 <table style="text-align:center"><caption><strong>Test of MCAR for `SepBeg` (conditional on mapping `NA` into `B`)</strong></caption>
 <tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td>Option</td></tr>
@@ -164,11 +175,6 @@ converged
 
 ## Putting both variables in the same model
 If we use both these two variables in the same MCAR model, we obtain the following:
-# weights:  4 (3 variable)
-initial  value 705.623830 
-iter  10 value 539.041576
-final  value 538.896265 
-converged
 
 <table style="text-align:center"><caption><strong>Test of MCAR for Emp+`SepBeg` (conditional on mapping `NA` into `B`)</strong></caption>
 <tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td>Option</td></tr>
@@ -194,11 +200,6 @@ converged
 
 For the industry distribution of **Payroll**, the distribution looks like this:
 ![](s2014_availability_files/figure-html/graph_Payroll-1.png)<!-- -->
-# weights:  3 (2 variable)
-initial  value 705.623830 
-iter  10 value 536.439672
-final  value 536.439626 
-converged
 
 <table style="text-align:center"><caption><strong>Test of MCAR for `Payroll` (conditional on mapping `NA` into `B`)</strong></caption>
 <tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td>Option</td></tr>
